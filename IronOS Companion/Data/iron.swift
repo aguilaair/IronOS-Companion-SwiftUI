@@ -15,6 +15,7 @@ class Iron {
     var build: String
     var devSN:String
     var devID: String
+    @Transient var connectedAt: Date?
     
     init(name: String, value: String, build: String, devSN: String, devID: String) {
         self.name = name
