@@ -10,22 +10,9 @@
 		ECDCB8E22DE57C02006DD91B /* IronOS Companion.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "IronOS Companion.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		ECDCB90A2DE7B7B3006DD91B /* Exceptions for "IronOS Companion" folder in "IronOS Companion" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				"IronOS-Companion-Info.plist",
-			);
-			target = ECDCB8E12DE57C02006DD91B /* IronOS Companion */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		ECDCB8E42DE57C02006DD91B /* IronOS Companion */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				ECDCB90A2DE7B7B3006DD91B /* Exceptions for "IronOS Companion" folder in "IronOS Companion" target */,
-			);
 			path = "IronOS Companion";
 			sourceTree = "<group>";
 		};

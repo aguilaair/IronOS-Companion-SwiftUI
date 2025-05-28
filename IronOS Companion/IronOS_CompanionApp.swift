@@ -12,7 +12,7 @@ import SwiftData
 struct IronOS_CompanionApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            Item.self,
+            Iron.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -25,7 +25,7 @@ struct IronOS_CompanionApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            WelcomeView()
         }
         .modelContainer(sharedModelContainer)
     }
