@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import CoreBluetooth
 
 @main
 struct IronOS_CompanionApp: App {
@@ -22,10 +23,13 @@ struct IronOS_CompanionApp: App {
             fatalError("Could not create ModelContainer: \(error)")
         }
     }()
+    
 
     var body: some Scene {
         WindowGroup {
-            WelcomeView()
+            WelcomeView().onAppear {
+                print(CBCentralManager.authorization.rawValue)
+            }
         }
         .modelContainer(sharedModelContainer)
     }

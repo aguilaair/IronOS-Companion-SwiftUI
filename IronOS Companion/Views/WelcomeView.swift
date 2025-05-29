@@ -73,7 +73,7 @@ struct WelcomeView: View {
             }
             .navigationDestination(isPresented: $showDeviceList) {
                 DiscoveredDevicesView()
-                    .checkBLEPermission()
+                  
             }
         }
     }
@@ -100,11 +100,8 @@ struct WelcomePageView: View {
                 switch page.imageType {
                 case .system(let name):
                     ZStack {
-                        // Glow effect
-                        Circle()
-                            .fill(page.backgroundColor.opacity(0.2))
+                        AnimatedBlob(color: page.backgroundColor.opacity(0.2))
                             .frame(width: 220, height: 220)
-                            .blur(radius: 20)
                         
                         Image(systemName: name)
                             .font(.system(size: 100))
@@ -112,11 +109,8 @@ struct WelcomePageView: View {
                     }
                 case .asset(let name):
                     ZStack {
-                        // Glow effect
-                        Circle()
-                            .fill(page.backgroundColor.opacity(0.2))
+                        AnimatedBlob(color: page.backgroundColor.opacity(0.2))
                             .frame(width: 220, height: 220)
-                            .blur(radius: 20)
                         
                         Image(name)
                             .resizable()
