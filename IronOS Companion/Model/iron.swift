@@ -8,6 +8,7 @@
 import SwiftData
 import Foundation
 import SwiftUI
+import CoreBluetooth
 
 enum SignalQuality: String {
     case excellent = "Excellent"
@@ -37,6 +38,7 @@ class Iron {
     @Transient var connectedAt: Date?
     @Transient var connected: Bool = false
     @Transient var rssi: Int = 0
+    @Transient var peripheral: CBPeripheral?
     
     init(uuid: UUID, name: String?, build: String?, devSN: String?, devID: String?) {
         self.id = uuid
@@ -46,11 +48,12 @@ class Iron {
         self.devID = devID
     }
 
-    // Init with rssi
-    init(uuid: UUID, rssi: Int, name: String?) {
+    // Init for device discovery
+    init(uuid: UUID, rssi: Int, name: String?, peripheral: CBPeripheral?) {
         self.id = uuid
         self.rssi = rssi
         self.name = name
+        self.peripheral = peripheral
     }
 
     var signalQuality: SignalQuality {

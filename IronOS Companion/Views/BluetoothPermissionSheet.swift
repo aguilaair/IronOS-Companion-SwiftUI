@@ -11,7 +11,7 @@ import CoreBluetooth
 struct BluetoothPermissionSheet: View {
     @Environment(\.openURL) var openURL
     @Environment(\.dismiss) var dismiss
-    @ObservedObject var bleManager = BLEManager()
+    @EnvironmentObject var bleManager: BLEManager
     var onDismiss: () -> Void
 
     var body: some View {

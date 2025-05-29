@@ -11,6 +11,8 @@ import CoreBluetooth
 
 @main
 struct IronOS_CompanionApp: App {
+    @StateObject private var bleManager = BLEManager.shared
+    
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Iron.self,
@@ -24,12 +26,10 @@ struct IronOS_CompanionApp: App {
         }
     }()
     
-
     var body: some Scene {
         WindowGroup {
-            WelcomeView().onAppear {
-                print(CBCentralManager.authorization.rawValue)
-            }
+            WelcomeView()
+                .environmentObject(bleManager)
         }
         .modelContainer(sharedModelContainer)
     }

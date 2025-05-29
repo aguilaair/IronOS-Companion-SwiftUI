@@ -9,10 +9,11 @@ import SwiftUI
 import CoreBluetooth
 
 struct DiscoveredDevicesView: View {
-    @StateObject private var bleManager = BLEManager()
+    @EnvironmentObject var bleManager: BLEManager
     @State private var showError = false
     @State private var errorMessage = ""
     @State private var showPermissionSheet = false;
+    @State private var deviceToConnect: Iron? = nil // Track selected device
     
     var body: some View {
         VStack(spacing: 24) {
@@ -34,7 +35,9 @@ struct DiscoveredDevicesView: View {
                 ScrollView {
                     VStack(spacing: 18) {
                         ForEach(bleManager.irons) { iron in
-                            DeviceCard(iron: iron)
+                            DeviceCard(iron: iron) {
+                                deviceToConnect = iron
+                            }
                         }
                     }
                     .padding(.horizontal)
@@ -73,11 +76,16 @@ struct DiscoveredDevicesView: View {
             })
             .interactiveDismissDisabled(true)
         }
+        .sheet(item: $deviceToConnect) { iron in
+            SetUpAccessorySheet(iron: iron)
+                .interactiveDismissDisabled()
+        }
     }
 }
 
 struct DeviceCard: View {
     let iron: Iron
+    var onTap: (() -> Void)? = nil
     @State private var animateRadar = false
     var body: some View {
         HStack(spacing: 18) {
@@ -107,10 +115,11 @@ struct DeviceCard: View {
         )
         .contentShape(Rectangle())
         .onTapGesture {
-            // TODO: Implement device connection
+            onTap?()
         }
     }
 }
+
 
 #Preview {
     NavigationView {

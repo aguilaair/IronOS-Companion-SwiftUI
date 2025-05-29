@@ -84,3 +84,20 @@ struct AnimatedBlob: View {
             }
     }
 } 
+
+// View Modifier for the AnimatedBlob
+struct AnimatedBlobModifier: ViewModifier {
+    let color: Color
+    let opacity: Double
+    
+    func body(content: Content) -> some View {
+        content
+            .background(AnimatedBlob(color: color).opacity(opacity))
+    }
+}
+
+extension View {
+    func animatedBlob(color: Color, opacity: Double = 0.2) -> some View {
+        self.modifier(AnimatedBlobModifier(color: color, opacity: opacity))
+    }
+}
