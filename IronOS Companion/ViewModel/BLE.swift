@@ -5,6 +5,8 @@
 //  Created by Eduardo Moreno Adanez on 5/28/25.
 //
 // Based on: https://youtu.be/dKUgxZC1y6Q
+// Claude Sonnet 3.7 added logging, with the following prompt:
+// "Add print statements to all of the functions in the BLEManager class"
 
 import Foundation
 import Foundation

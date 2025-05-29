@@ -1,3 +1,10 @@
+//
+//  BluetoothPermissionSheet.swift
+//  IronOS Companion
+//
+//  Created by Eduardo Moreno Adanez on 5/28/25.
+//
+
 import SwiftUI
 import CoreBluetooth
 

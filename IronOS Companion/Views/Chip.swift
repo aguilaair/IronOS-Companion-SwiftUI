@@ -1,3 +1,10 @@
+//
+//  Chip.swift
+//  IronOS Companion
+//
+//  Created by Eduardo Moreno Adanez on 5/28/25.
+//
+
 import SwiftUI
 
 struct Chip: View {
