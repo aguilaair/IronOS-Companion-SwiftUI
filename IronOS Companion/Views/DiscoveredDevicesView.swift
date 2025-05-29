@@ -85,19 +85,16 @@ struct DeviceCard: View {
                 .resizable()
                 .scaledToFit()
                 .frame(width: 60, height: 60)
-                .cornerRadius(12)
                 .shadow(radius: 2)
                 .rotationEffect(.degrees(-50))
                 
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading) {
                 Text(iron.name ?? "IronOS Device")
                     .font(.headline)
                 Text(iron.id.uuidString)
                     .font(.caption)
                     .foregroundColor(.secondary)
-                HStack(spacing: 8) {
-                    Chip(text: "Signal: \(iron.signalQualityString)", color: iron.signalColor)
-                }
+                Chip(text: "Signal: \(iron.signalQualityString)", color: iron.signalColor)
             }
             Spacer()
             Image(systemName: "chevron.right")
@@ -107,7 +104,6 @@ struct DeviceCard: View {
         .background(
             RoundedRectangle(cornerRadius: 18)
                 .fill(Color(.secondarySystemBackground))
-                .shadow(color: Color.black.opacity(0.04), radius: 4, x: 0, y: 2)
         )
         .contentShape(Rectangle())
         .onTapGesture {

@@ -38,7 +38,7 @@ struct WelcomeView: View {
                 Color(.systemBackground)
                     .ignoresSafeArea()
                 
-                VStack(spacing: 20) {
+                VStack {
                     TabView(selection: $currentPage) {
                         ForEach(0..<pages.count, id: \.self) { index in
                             WelcomePageView(page: pages[index])

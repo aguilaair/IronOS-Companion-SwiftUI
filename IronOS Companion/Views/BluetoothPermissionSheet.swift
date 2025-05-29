@@ -8,7 +8,7 @@ struct BluetoothPermissionSheet: View {
     var onDismiss: () -> Void
 
     var body: some View {
-        VStack(spacing: 24) {
+        VStack {
             Image("bt")
                 .resizable()
                 .frame(width: 100, height: 100)
