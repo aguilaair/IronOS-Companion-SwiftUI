@@ -27,8 +27,15 @@ struct IronOS_CompanionApp: App {
             let descriptor = FetchDescriptor<AppState>()
             if try context.fetch(descriptor).isEmpty {
                 let appState = AppState()
+                appState.bleManager = BLEManager.shared
                 context.insert(appState)
                 try context.save()
+            } else {
+                // Update existing AppState with BLEManager
+                if let appState = try context.fetch(descriptor).first {
+                    appState.bleManager = BLEManager.shared
+                    try context.save()
+                }
             }
             return container
         } catch {

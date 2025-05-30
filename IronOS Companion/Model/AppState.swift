@@ -6,7 +6,17 @@ class AppState {
     var savedIrons: [Iron]
     var lastConnectedIronID: UUID?
     var hasCompletedOnboarding: Bool
-    @EnvironmentObject var bleManager: BLEManager
+    @Transient var bleManager: BLEManager? {
+        didSet {
+            if let bleManager = bleManager, let lastID = lastConnectedIronID {
+                // Wait a short moment for BLE to initialize and start scanning
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                    bleManager.attemptConnectToLastIron(uuid: lastID)
+                }
+            }
+        }
+    }
+    @Transient var latestData: IronData?
 
     init(savedIrons: [Iron] = [], lastConnectedIronID: UUID? = nil, hasCompletedOnboarding: Bool = false) {
         self.savedIrons = savedIrons
@@ -16,11 +26,11 @@ class AppState {
 
     // Method that checks wether BLEManager is connected to an iron
     func isConnectedToIron() -> Bool {
-        return bleManager.connectionStatus == .connected
+        return bleManager?.connectionStatus == .connected
     }
 
     func getConnectedIron() -> Iron? {
-        return bleManager.connectedIron
+        return bleManager?.connectedIron
     }
     
     // Helper methods

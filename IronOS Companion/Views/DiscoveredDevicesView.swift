@@ -90,7 +90,7 @@ struct DiscoveredDevicesView: View {
                 .interactiveDismissDisabled()
         }
         .navigationDestination(isPresented: $navigateToHome) {
-            HomeView()
+            DeviceDashView()
         }
     }
 }

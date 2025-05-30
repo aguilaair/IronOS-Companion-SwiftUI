@@ -4,7 +4,7 @@
 //
 //  Created by Eduardo Moreno Adanez on 5/28/25.
 //
-// Based on: https://youtu.be/dKUgxZC1y6Q
+// Based on: https://youtu.be/dKUgxZC1y6Q, heavily modified to support BLE data streaming
 // Claude Sonnet 3.7 added logging, with the following prompt:
 // "Add print statements to all of the functions in the BLEManager class"
 
@@ -23,8 +23,16 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
     @Published var connectedIron: Iron?
     @Published var bluetoothPermission: CBManagerAuthorization = CBCentralManager.authorization
     @Published var connectionStatus: ConnectionStatus = .disconnected
+    @Published var latestData: IronData?
+    @Published var historicalData: [IronData] = []
     private var isInitialized = false
     private let successFeedback = UINotificationFeedbackGenerator()
+    private var bulkDataCharacteristic: CBCharacteristic?
+    private var buildCharacteristic: CBCharacteristic?
+    private var bulkService: CBService?
+    private var liveService: CBService?
+    private var settingsService: CBService?
+    private var dataUpdateTimer: Timer?
 
     enum ConnectionStatus {
         case disconnected
@@ -106,6 +114,17 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
         }
     }
 
+    // MARK: - Connection Management
+    
+    func attemptConnectToLastIron(uuid: UUID) {
+        print("🔵 BLEManager: Attempting to connect to last iron with UUID: \(uuid)")
+        if let iron = irons.first(where: { $0.id == uuid }) {
+            connect(to: iron)
+        } else {
+            print("🔵 BLEManager: Last connected iron not found in discovered devices")
+        }
+    }
+
     //Connect to a peripheral
     func connect(to iron: Iron) {
         print("🔵 BLEManager: Connecting to peripheral: \(iron.name ?? "Unknown")")
@@ -118,6 +137,8 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
     //Disconnect from a peripheral
     func disconnect(from peripheral: Iron) {
         print("🔵 BLEManager: Disconnecting from peripheral: \(peripheral.name ?? "Unknown")")
+        dataUpdateTimer?.invalidate()
+        dataUpdateTimer = nil
         myCentralManager.cancelPeripheralConnection(peripheral.peripheral!)
     }
 
@@ -172,6 +193,20 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
         print("🔵 BLEManager: Discovered services: \(peripheral.services?.map { $0.uuid.uuidString } ?? [])")
         connectionStatus = .discoveringCharacteristics
         
+        // Store references to services
+        peripheral.services?.forEach { service in
+            switch service.uuid {
+            case IronServices.bulk:
+                bulkService = service
+            case IronServices.liveData:
+                liveService = service
+            case IronServices.settings:
+                settingsService = service
+            default:
+                break
+            }
+        }
+        
         // Discover characteristics for each service
         peripheral.services?.forEach { service in
             print("🔵 BLEManager: Discovering characteristics for service: \(service.uuid.uuidString)")
@@ -188,18 +223,28 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
         
         print("🔵 BLEManager: Discovered characteristics for service \(service.uuid.uuidString): \(service.characteristics?.map { $0.uuid.uuidString } ?? [])")
         
+        // Store references to important characteristics
+        service.characteristics?.forEach { characteristic in
+            switch characteristic.uuid {
+            case IronCharacteristicUUIDs.bulkLiveData:
+                bulkDataCharacteristic = characteristic
+                // Read the first characteristic immediately
+                peripheral.readValue(for: characteristic)
+            case IronCharacteristicUUIDs.build:
+                buildCharacteristic = characteristic
+                peripheral.readValue(for: characteristic)
+            default:
+                if characteristic.properties.contains(.notify) {
+                    peripheral.setNotifyValue(true, for: characteristic)
+                }
+            }
+        }
+        
         // Check if all services have their characteristics discovered
         if peripheral.services?.allSatisfy({ $0.characteristics != nil }) == true {
             connectionStatus = .connected
             successFeedback.notificationOccurred(.success)
-        }
-        
-        // Enable notifications for characteristics that support it
-        service.characteristics?.forEach { characteristic in
-            if characteristic.properties.contains(.notify) {
-                print("🔵 BLEManager: Enabling notifications for characteristic: \(characteristic.uuid.uuidString)")
-                peripheral.setNotifyValue(true, for: characteristic)
-            }
+            startDataUpdates()
         }
     }
     
@@ -209,8 +254,73 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
             return
         }
         
-        print("🔵 BLEManager: Received value for characteristic: \(characteristic.uuid.uuidString)")
-        // Handle the received data here
+        guard let data = characteristic.value else {
+            print("🔵 BLEManager: No data received for characteristic: \(characteristic.uuid.uuidString)")
+            return
+        }
+        
+        switch characteristic.uuid {
+        case IronCharacteristicUUIDs.bulkLiveData:
+            handleBulkData(data)
+        case IronCharacteristicUUIDs.build:
+            handleBuildData(data)
+        default:
+            print("🔵 BLEManager: Received value for characteristic: \(characteristic.uuid.uuidString)")
+        }
+    }
+    
+    private func startDataUpdates() {
+        // Stop any existing timer
+        dataUpdateTimer?.invalidate()
+        
+        // Create a new timer that reads bulk data every second
+        dataUpdateTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            guard let self = self,
+                  let peripheral = self.connectedIron?.peripheral,
+                  let characteristic = self.bulkDataCharacteristic else { return }
+            
+            peripheral.readValue(for: characteristic)
+        }
+    }
+    
+    private func handleBulkData(_ data: Data) {
+        // Convert Data to [Int] array
+        var values: [Int] = []
+        for i in stride(from: 0, to: data.count, by: 4) {
+            if i + 3 < data.count {  // Ensure we have 4 bytes to read
+                let value = data.withUnsafeBytes { $0.load(fromByteOffset: i, as: UInt32.self) }
+                values.append(Int(value))
+            }
+        }
+        
+        print("🔵 BLEManager: Received bulk data values: \(values)")
+        
+        // Ensure we have enough values
+        guard values.count >= 14 else {
+            print("🔵 BLEManager: Not enough values in bulk data. Expected at least 14, got \(values.count)")
+            return
+        }
+        
+        // Create IronData from the values
+        let ironData = IronData(from: values)
+        
+        // Update the latest data and history
+        DispatchQueue.main.async {
+            self.latestData = ironData
+            self.historicalData.append(ironData)
+            // Keep only the last 60 entries
+            if self.historicalData.count > 60 {
+                self.historicalData.removeFirst(self.historicalData.count - 60)
+            }
+        }
+    }
+    
+    private func handleBuildData(_ data: Data) {
+        if let buildString = String(data: data, encoding: .utf8) {
+            DispatchQueue.main.async {
+                self.connectedIron?.build = buildString
+            }
+        }
     }
 }
 
