@@ -62,7 +62,7 @@ struct BluetoothPermissionSheet: View {
             }
         }
         .padding()
-        .onChange(of: bleManager.bluetoothPermission) { newValue, oldValue in
+        .onChange(of: bleManager.bluetoothPermission) { oldValue, newValue in
             if newValue == .allowedAlways {
                 dismiss()
                 onDismiss()

@@ -16,11 +16,21 @@ struct IronOS_CompanionApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Iron.self,
+            AppState.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            let container = try ModelContainer(for: schema, configurations: [modelConfiguration])
+            // Initialize AppState if it doesn't exist
+            let context = container.mainContext
+            let descriptor = FetchDescriptor<AppState>()
+            if try context.fetch(descriptor).isEmpty {
+                let appState = AppState()
+                context.insert(appState)
+                try context.save()
+            }
+            return container
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }
@@ -28,9 +38,26 @@ struct IronOS_CompanionApp: App {
     
     var body: some Scene {
         WindowGroup {
-            WelcomeView()
+            ContentView()
                 .environmentObject(bleManager)
         }
         .modelContainer(sharedModelContainer)
+    }
+}
+
+struct ContentView: View {
+    @Query private var appState: [AppState]
+    
+    var body: some View {
+        if let state = appState.first {
+            if state.hasCompletedOnboarding {
+                DeviceDashView()
+            } else {
+                WelcomeView()
+            }
+        } else {
+            // This should never happen as we initialize AppState in the container
+            WelcomeView()
+        }
     }
 }

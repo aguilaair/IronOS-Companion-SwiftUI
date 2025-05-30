@@ -7,13 +7,20 @@
 
 import SwiftUI
 import CoreBluetooth
+import SwiftData
 
 struct DiscoveredDevicesView: View {
     @EnvironmentObject var bleManager: BLEManager
+    @Query private var appState: [AppState]
     @State private var showError = false
     @State private var errorMessage = ""
     @State private var showPermissionSheet = false;
     @State private var deviceToConnect: Iron? = nil // Track selected device
+    @State private var navigateToHome = false // Add navigation state
+    
+    private var state: AppState? {
+        appState.first
+    }
     
     var body: some View {
         VStack(spacing: 24) {
@@ -35,7 +42,7 @@ struct DiscoveredDevicesView: View {
                 ScrollView {
                     VStack(spacing: 18) {
                         ForEach(bleManager.irons) { iron in
-                            DeviceCard(iron: iron) {
+                            DeviceCard(iron: iron, isSaved: state?.savedIrons.contains(where: { $0.id == iron.id }) ?? false) {
                                 deviceToConnect = iron
                             }
                         }
@@ -64,7 +71,7 @@ struct DiscoveredDevicesView: View {
         }
         .navigationTitle("")
         .toolbar(.hidden, for: .navigationBar)
-        .onChange(of: bleManager.bluetoothPermission) { newValue, oldValue in
+        .onChange(of: bleManager.bluetoothPermission) { oldValue, newValue in
             showPermissionSheet = (newValue == .denied || newValue == .notDetermined)
         }
         .onAppear {
@@ -77,16 +84,23 @@ struct DiscoveredDevicesView: View {
             .interactiveDismissDisabled(true)
         }
         .sheet(item: $deviceToConnect) { iron in
-            SetUpAccessorySheet(iron: iron)
+            SetUpAccessorySheet(iron: iron){
+                navigateToHome = true
+            }
                 .interactiveDismissDisabled()
+        }
+        .navigationDestination(isPresented: $navigateToHome) {
+            HomeView()
         }
     }
 }
 
 struct DeviceCard: View {
     let iron: Iron
+    let isSaved: Bool
     var onTap: (() -> Void)? = nil
     @State private var animateRadar = false
+    
     var body: some View {
         HStack(spacing: 18) {
             iron.image
@@ -101,7 +115,12 @@ struct DeviceCard: View {
                 Text(iron.id.uuidString)
                     .font(.caption)
                     .foregroundColor(.secondary)
-                Chip(text: "Signal: \(iron.signalQualityString)", color: iron.signalColor)
+                HStack(spacing: 8) {
+                    Chip(text: "Signal: \(iron.signalQualityString)", color: iron.signalColor)
+                    if isSaved {
+                        Chip(text: "Linked", color: .purple)
+                    }
+                }
             }
             Spacer()
             Image(systemName: "chevron.right")
