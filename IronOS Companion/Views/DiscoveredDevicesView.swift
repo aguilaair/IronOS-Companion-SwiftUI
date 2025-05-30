@@ -89,12 +89,11 @@ struct DeviceCard: View {
     @State private var animateRadar = false
     var body: some View {
         HStack(spacing: 18) {
-            Image("pinecil")
+            iron.image
                 .resizable()
                 .scaledToFit()
                 .frame(width: 60, height: 60)
                 .shadow(radius: 2)
-                .rotationEffect(.degrees(-50))
                 
             VStack(alignment: .leading) {
                 Text(iron.name ?? "IronOS Device")
@@ -124,5 +123,6 @@ struct DeviceCard: View {
 #Preview {
     NavigationView {
         DiscoveredDevicesView()
+            .environmentObject(MockBLEManager() as BLEManager)
     }
 } 

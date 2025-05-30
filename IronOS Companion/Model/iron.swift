@@ -28,6 +28,13 @@ enum SignalQuality: String {
     var displayString: String { self.rawValue }
 }
 
+enum IronColor: String, Codable {
+    case teal
+    case red
+    //case blue
+    case transparent
+}
+
 @Model
 class Iron {
     @Attribute(.unique) var id: UUID
@@ -35,6 +42,7 @@ class Iron {
     var build: String?
     var devSN: String?
     var devID: String?
+    var variation: IronColor = IronColor.teal
     @Transient var connectedAt: Date?
     @Transient var connected: Bool = false
     @Transient var rssi: Int = 0
@@ -73,5 +81,19 @@ class Iron {
 
     var signalQualityString: String {
         signalQuality.displayString
+    }
+    
+    // Iron Image provider
+    var image: Image {
+        switch variation {
+        case .teal:
+            return Image("default")
+        case .red:
+            return Image("red")
+        //case .blue:
+        //    return Image(systemName: "pinecil/blue")
+        case .transparent:
+            return Image("transparent")
+        }
     }
 }

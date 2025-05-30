@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import CoreBluetooth
 
 struct SetUpAccessorySheet: View {
     let iron: Iron
@@ -25,17 +26,14 @@ struct SetUpAccessorySheet: View {
                 Text("Please wait, pairing \(iron.name ?? "Iron") with your device")
                     .padding(.bottom)
                     .multilineTextAlignment(.center)
-                Spacer().frame(height: 56)
-                Image("pinecil")
+                iron.image
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .rotationEffect(.degrees(-50))
-                    .frame(maxWidth: 260, maxHeight: 110)
+                    .frame(maxHeight: 120)
                     .animatedBlob(color: bleManager.connectionStatus == .connected ? .green : .blue, opacity: 0.4)
                 Text((iron.name ?? "IronOS Device"))
                     .font(.footnote)
-                    .padding(.top, 48)
-                    .padding(.bottom, 16)
+                    .padding(.vertical)
                 Spacer()
                 HStack(spacing: 8) {
                     if bleManager.connectionStatus == .connecting || 
@@ -50,11 +48,15 @@ struct SetUpAccessorySheet: View {
                         .foregroundColor(bleManager.connectionStatus == .connected ? .green : .primary)
                 }.padding()
 
-                if(bleManager.connectionStatus != .connected) {Button(action: {
-                    bleManager.disconnect(from: iron.peripheral!)
-                    dismiss()
+                Button(action: {
+                    if(bleManager.connectionStatus != .connected) {
+                        bleManager.disconnect(from: iron)
+                        dismiss()
+                    } else {
+                        // Navigate to the main view
+                    }
                 }) {
-                    Text("Cancel")
+                    Text(bleManager.connectionStatus == .connected ? "Continue" : "Cancel")
                         .font(.headline)
                         .foregroundColor(.primary)
                         .padding()
@@ -63,7 +65,7 @@ struct SetUpAccessorySheet: View {
                         .cornerRadius(15)
                 }
                 .padding()
-                }
+                
             }
             .padding(.horizontal, 28)
             .padding(.vertical, 18)
@@ -85,7 +87,8 @@ struct SetUpAccessorySheet: View {
     }
 }
 
+
 #Preview {
-    SetUpAccessorySheet(iron: Iron(uuid: UUID(), rssi: 0, name: "Test", peripheral: nil))
-        .environmentObject(BLEManager.shared)
+    SetUpAccessorySheet(iron: Iron(uuid: UUID(), rssi: -80, name: "Test", peripheral: nil))
+        .environmentObject(MockBLEManager() as BLEManager)
 }

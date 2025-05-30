@@ -116,9 +116,9 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
     }
 
     //Disconnect from a peripheral
-    func disconnect(from peripheral: CBPeripheral) {
+    func disconnect(from peripheral: Iron) {
         print("🔵 BLEManager: Disconnecting from peripheral: \(peripheral.name ?? "Unknown")")
-        myCentralManager.cancelPeripheralConnection(peripheral)
+        myCentralManager.cancelPeripheralConnection(peripheral.peripheral!)
     }
 
     // Handle connection events
@@ -211,5 +211,39 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
         
         print("🔵 BLEManager: Received value for characteristic: \(characteristic.uuid.uuidString)")
         // Handle the received data here
+    }
+}
+
+
+// Mock BLEManager for previews
+class MockBLEManager: BLEManager {
+    override init() {
+        super.init()
+        // Initialize with mock state
+        isSwitchedOn = true
+        bluetoothPermission = .allowedAlways
+        
+        
+        // Add a mock iron
+        let iron = Iron(uuid: UUID(), rssi: -80, name: "Test Iron", peripheral: nil)
+        irons.append(iron)
+    }
+    
+    override func connect(to iron: Iron) {
+        // Simulate connection process
+        connectionStatus = .connecting
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            self.connectionStatus = .discoveringServices
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            self.connectionStatus = .discoveringCharacteristics
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            self.connectionStatus = .connected
+        }
+    }
+    
+    override func disconnect(from peripheral: Iron) {
+        connectionStatus = .disconnected
     }
 }
