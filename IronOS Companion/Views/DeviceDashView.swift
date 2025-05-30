@@ -33,6 +33,82 @@ struct TemperatureDisplay: View {
     }
 }
 
+struct PinecilTopCard: View {
+    var body: some View {
+        GeometryReader { geometry in
+            let cardRadius: CGFloat = 18
+            let cardSize = max(geometry.size.width, geometry.size.height)
+            ZStack {
+                // Radial gradient background
+                RadialGradient(
+                    gradient: Gradient(colors: [Color(.green).opacity(0.2), Color(.secondarySystemBackground)]),
+                    center: .bottom,
+                    startRadius: 20,
+                    endRadius: cardSize/1.5
+                )
+                .cornerRadius(cardRadius)
+                .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)
+
+                HStack(alignment: .top) {
+                    VStack(alignment: .leading, spacing: 20) {
+                        HStack(alignment: .firstTextBaseline, spacing: 8) {
+                            Text("My Pinecil")
+                                .font(.title)
+                                .fontWeight(.bold)
+                            Text("v2.23")
+                                .font(.callout)
+                                .padding(.top, 6)
+                        }
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Setpoint")
+                                .font(.headline)
+                            HStack(spacing: 20) {
+                                Text("300")
+                                    .font(.largeTitle)
+                                    .fontWeight(.bold)
+                                HStack(spacing: 12) {
+                                    Circle()
+                                        .stroke(Color.primary, lineWidth: 2)
+                                        .overlay(
+                                            Image(systemName: "plus")
+                                                .font(.title3)
+                                        )
+                                    Circle()
+                                        .stroke(Color.primary, lineWidth: 2)
+                                        .overlay(
+                                            Image(systemName: "minus")
+                                                .font(.title3)
+                                        )
+                                }
+                            }
+                        }
+                    }
+                    Spacer()
+                    ZStack(alignment: .bottomTrailing) {
+                        Image("default")
+                            .resizable()
+                            .scaledToFit()
+                            .scaleEffect(1.6)
+                            .offset(x: -20, y: 20)
+                        VStack {
+                            Spacer()
+                            Text("Stand-by")
+                                .font(.headline)
+                                .fontWeight(.medium)
+                                .padding(.trailing, 8)
+                                .padding(.bottom, 4)
+                        }
+                    }
+                }
+                .padding(20)
+            }
+            .frame(minHeight: 160)
+            .clipShape(RoundedRectangle(cornerRadius: cardRadius))
+        }
+        .frame(minHeight: 160)
+    }
+}
+
 struct DeviceDashView: View {
     @EnvironmentObject var bleManager: BLEManager
     @Query private var appState: [AppState]
@@ -46,6 +122,7 @@ struct DeviceDashView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 24) {
+                    PinecilTopCard()
                     if let iron = bleManager.connectedIron {
                         // Connected Device View
                         VStack(spacing: 16) {
