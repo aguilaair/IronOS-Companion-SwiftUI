@@ -10,21 +10,34 @@ import SwiftUI
 struct PinecilTopCard: View {
     let iron: Iron?
     let data: IronData?
+    @State private var gradientOpacity: Double = 0.2
 
     var body: some View {
         GeometryReader { geometry in
             let cardRadius: CGFloat = 18
             let cardSize = max(geometry.size.width, geometry.size.height)
             ZStack {
-                // Radial gradient background
-                RadialGradient(
-                    gradient: Gradient(colors: [Color(.green).opacity(0.2), Color(.secondarySystemBackground)]),
-                    center: .bottom,
-                    startRadius: 20,
-                    endRadius: cardSize/1.5
-                )
-                .cornerRadius(cardRadius)
-                .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)
+                // Background
+                if iron != nil && data != nil {
+                    // Radial gradient background
+                    RadialGradient(
+                        gradient: Gradient(colors: [Color(.green).opacity(gradientOpacity), Color(.secondarySystemBackground)]),
+                        center: .bottom,
+                        startRadius: 20,
+                        endRadius: cardSize/1.5
+                    )
+                    .cornerRadius(cardRadius)
+                    .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)
+                    .onAppear {
+                        withAnimation(.easeInOut(duration: 2.0).repeatForever(autoreverses: true)) {
+                            gradientOpacity = 0.4
+                        }
+                    }
+                } else {
+                    Color(.secondarySystemBackground)
+                        .cornerRadius(cardRadius)
+                        .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)
+                }
 
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 20) {
