@@ -45,7 +45,7 @@ struct PinecilTopCard: View {
                             Text(iron?.name ?? "Disconnected")
                                 .font(.title)
                                 .fontWeight(.bold)
-                            Text("v" + (iron?.build ?? ""))
+                            Text(iron?.build ?? "")
                                 .font(.callout)
                                 .padding(.top, 6)
                         }
