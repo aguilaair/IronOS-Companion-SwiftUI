@@ -59,7 +59,7 @@ struct SetUpAccessorySheet: View {
                         
                         if bleManager.connectionStatus == .connected {
                             Picker("Iron Color", selection: $selectedColor) {
-                                ForEach([IronColor.teal, .red, .transparent], id: \.self) { color in
+                                ForEach([IronColor.teal, .transparent, .red, .blue, .liquid, .pink, .pride], id: \.self) { color in
                                     Text(color.rawValue.capitalized)
                                         .tag(color)
                                 }

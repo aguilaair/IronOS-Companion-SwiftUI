@@ -9,9 +9,14 @@ class AppState {
     @Transient var bleManager: BLEManager? {
         didSet {
             if let bleManager = bleManager, let lastID = lastConnectedIronID {
-                // Wait a short moment for BLE to initialize and start scanning
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                    bleManager.attemptConnectToLastIron(uuid: lastID)
+                // Start scanning for devices
+                bleManager.startScanning()
+                
+                // Wait for devices to be discovered before attempting to connect
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                    if bleManager.irons.contains(where: { $0.id == lastID }) {
+                        bleManager.attemptConnectToLastIron(uuid: lastID)
+                    }
                 }
             }
         }

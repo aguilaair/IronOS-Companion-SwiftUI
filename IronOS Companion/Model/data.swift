@@ -45,4 +45,22 @@ class IronData: Codable {
         self.currentMode = OperatingMode.fromInt(chars[12])
         self.estimatedWattage = Double(chars[13]) / 10.0
     }
+
+    // This is for testing purposes
+    init(temperature: Int, setpoint: Int = 350, power: Int = 65, handleTemp: Double = 35.0) {
+        self.currentTemp = temperature
+        self.setpoint = setpoint
+        self.inputVoltage = 12.0
+        self.handleTemp = handleTemp
+        self.power = power
+        self.powerSrc = 0
+        self.tipResistance = 100
+        self.uptime = 0.0
+        self.lastMovementTime = 0.0
+        self.maxTemp = 400
+        self.rawTip = temperature
+        self.hallSensor = 0
+        self.currentMode = .soldering
+        self.estimatedWattage = Double(power)
+    }
 }

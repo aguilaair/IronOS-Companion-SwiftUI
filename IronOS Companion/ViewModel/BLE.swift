@@ -327,16 +327,64 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
 
 // Mock BLEManager for previews
 class MockBLEManager: BLEManager {
+    private var mockDataTimer: Timer?
+    private var mockTemperature: Int = 25
+    private var mockHandTemp: Double = 35.0
+    private var mockWattage: Int = 65
+    
     override init() {
         super.init()
         // Initialize with mock state
         isSwitchedOn = true
         bluetoothPermission = .allowedAlways
         
-        
         // Add a mock iron
         let iron = Iron(uuid: UUID(), rssi: -80, name: "Test Iron", peripheral: nil)
         irons.append(iron)
+    }
+    
+    private func startMockDataGeneration() {
+        // Stop any existing timer
+        mockDataTimer?.invalidate()
+        
+        // Create a new timer that generates data every 2 seconds
+        mockDataTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
+            guard let self = self else { return }
+            
+            // Generate a new temperature value
+            self.mockTemperature += Int.random(in: -2...2)
+            self.mockTemperature = max(20, min(400, self.mockTemperature)) // Keep temperature between 20°C and 400°C
+            
+            // Generate hand temperature (slowly increases when iron is hot, decreases when cold)
+            let handTempChange = Double.random(in: -0.2...0.2)
+            self.mockHandTemp += handTempChange
+            self.mockHandTemp = max(25.0, min(45.0, self.mockHandTemp)) // Keep hand temp between 25°C and 45°C
+            
+            // Generate wattage (higher when heating up, lower when at temperature)
+            let targetTemp = 350 // Typical soldering temperature
+            let tempDiff = targetTemp - self.mockTemperature
+            let baseWattage = 65 // Base wattage when at temperature
+            let heatingWattage = min(120, baseWattage + abs(tempDiff)) // Higher wattage when heating
+            self.mockWattage = Int(Double(heatingWattage) * (0.95 + Double.random(in: 0...0.1))) // Add some variation
+            
+            // Create mock data
+            let mockData = IronData(
+                temperature: self.mockTemperature,
+                setpoint: 350,
+                power: self.mockWattage,
+                handleTemp: self.mockHandTemp
+            )
+            
+            // Update the latest data and history
+            DispatchQueue.main.async {
+                self.latestData = mockData
+                self.historicalData.append(mockData)
+                // Keep only the last 60 entries
+                if self.historicalData.count > 60 {
+                    self.historicalData.removeFirst(self.historicalData.count - 60)
+                }
+            }
+        }
     }
     
     override func connect(to iron: Iron) {
@@ -350,10 +398,30 @@ class MockBLEManager: BLEManager {
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
             self.connectionStatus = .connected
+            self.connectedIron = iron
+            iron.connected = true
+            iron.connectedAt = Date()
         }
     }
     
     override func disconnect(from peripheral: Iron) {
+        // Stop generating mock data
+        mockDataTimer?.invalidate()
+        mockDataTimer = nil
+        
         connectionStatus = .disconnected
+        connectedIron = nil
+        peripheral.connected = false
+        peripheral.connectedAt = nil
+        
+        // Clear the data
+        DispatchQueue.main.async {
+            self.latestData = nil
+            self.historicalData.removeAll()
+        }
+    }
+    
+    deinit {
+        mockDataTimer?.invalidate()
     }
 }

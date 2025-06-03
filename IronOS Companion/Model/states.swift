@@ -5,6 +5,63 @@
 //  Created by Eduardo Moreno Adanez on 5/26/25.
 //
 
+import SwiftUI
+
+struct GradientConfig {
+    let colors: [Color]
+    let isAnimating: Bool
+    let animationDuration: Double
+    
+    static func forMode(_ mode: OperatingMode) -> GradientConfig {
+        switch mode {
+        case .idle:
+            return GradientConfig(
+                colors: [Color.green.opacity(0.4), Color(.systemBackground)],
+                isAnimating: false,
+                animationDuration: 0
+            )
+        case .soldering:
+            return GradientConfig(
+                colors: [Color.orange.opacity(0.4), Color(.systemBackground)],
+                isAnimating: true,
+                animationDuration: 2.0
+            )
+        case .boost:
+            return GradientConfig(
+                colors: [Color.red.opacity(0.4), Color(.systemBackground)],
+                isAnimating: true,
+                animationDuration: 0.5
+            )
+        case .sleeping:
+            return GradientConfig(
+                colors: [Color.purple.opacity(0.4), Color(.systemBackground)],
+                isAnimating: true,
+                animationDuration: 3.0
+            )
+        case .settings:
+            return GradientConfig(
+                colors: [Color.teal.opacity(0.4), Color(.systemBackground)],
+                isAnimating: false,
+                animationDuration: 0
+            )
+        case .debug:
+            return GradientConfig(
+                colors: [Color.yellow.opacity(0.4), Color(.systemBackground)],
+                isAnimating: false,
+                animationDuration: 0
+            )
+        }
+    }
+    
+    static var disconnected: GradientConfig {
+        GradientConfig(
+            colors: [Color(.systemGray4), Color(.systemBackground)],
+            isAnimating: false,
+            animationDuration: 0
+        )
+    }
+}
+
 enum OperatingMode: Int, Codable {
     case idle
     case soldering

@@ -31,7 +31,10 @@ enum SignalQuality: String {
 enum IronColor: String, Codable {
     case teal
     case red
-    //case blue
+    case blue
+    case liquid
+    case pink
+    case pride
     case transparent
 }
 
@@ -90,8 +93,14 @@ class Iron {
             return Image("default")
         case .red:
             return Image("red")
-        //case .blue:
-        //    return Image(systemName: "pinecil/blue")
+        case .blue:
+            return Image("blue")
+        case .liquid:
+            return Image("liquid")
+        case .pink:
+            return Image("pink")
+        case .pride:
+            return Image("pride")
         case .transparent:
             return Image("transparent")
         }
