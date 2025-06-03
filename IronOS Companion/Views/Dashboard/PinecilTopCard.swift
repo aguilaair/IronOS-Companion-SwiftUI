@@ -56,20 +56,28 @@ struct PinecilTopCard: View {
                             .scaledToFit()
                             .scaleEffect(1.6)
                             .offset(x: -30, y: 20)
-                            .mask(
-                                LinearGradient(
-                                    gradient: Gradient(colors: [.white, .white, .white, .white, .white, .clear]),
-                                    startPoint: .topTrailing,
-                                    endPoint: .bottomLeading
-                                )
-                            )
                         VStack {
                             Spacer()
-                            Text("Stand-by")
-                                .font(.headline)
-                                .fontWeight(.medium)
-                                .padding(.trailing, 8)
-                                .padding(.bottom, 4)
+                            ZStack {
+                                if let mode = data?.currentMode {
+                                    Text(mode.displayText)
+                                        .font(.headline)
+                                        .fontWeight(.medium)
+                                        .padding(.trailing, 8)
+                                        .padding(.bottom, 4)
+                                        .id(mode)
+                                        .transition(.opacity)
+                                } else {
+                                    Text("Waiting")
+                                        .font(.headline)
+                                        .fontWeight(.medium)
+                                        .padding(.trailing, 8)
+                                        .padding(.bottom, 4)
+                                        .id("waiting")
+                                        .transition(.opacity)
+                                }
+                            }
+                            .animation(.easeInOut(duration: 0.3), value: data?.currentMode)
                         }
                     }
                 }

@@ -70,6 +70,17 @@ enum OperatingMode: Int, Codable {
     case settings
     case debug
     
+    var displayText: String {
+        switch self {
+        case .idle: return "Stand-by"
+        case .soldering: return "Soldering"
+        case .boost: return "Boost"
+        case .sleeping: return "Sleeping"
+        case .settings: return "Settings"
+        case .debug: return "Debug"
+        }
+    }
+    
     static func fromInt(_ value: Int) -> OperatingMode {
         switch value {
         case 0: return .idle
