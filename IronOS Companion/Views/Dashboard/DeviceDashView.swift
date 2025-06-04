@@ -39,6 +39,7 @@ struct DeviceDashView: View {
     @Query private var appState: [AppState]
     @State private var showDeviceList = false
     @State private var currentColors: [Color] = [Color(.systemGray4), Color(.systemBackground)]
+    @StateObject private var settingsViewModel = SettingsViewModel()
     
     private var state: AppState? {
         appState.first
@@ -81,7 +82,11 @@ struct DeviceDashView: View {
                 
                 ScrollView {
                     VStack(spacing: 24) {
-                        PinecilTopCard(iron: bleManager.connectedIron, data: bleManager.latestData)
+                        PinecilTopCard(
+                            iron: bleManager.connectedIron,
+                            data: bleManager.latestData,
+                            settingsViewModel: settingsViewModel
+                        )
                         
                         if bleManager.connectedIron != nil {
                             // Connected Device View

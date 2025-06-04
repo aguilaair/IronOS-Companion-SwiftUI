@@ -33,6 +33,13 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
     private var liveService: CBService?
     private var settingsService: CBService?
     private var dataUpdateTimer: Timer?
+    private var pendingReadContinuations: [CBCharacteristic: CheckedContinuation<Data, Error>] = [:]
+    private var pendingWriteContinuations: [CBCharacteristic: CheckedContinuation<Void, Error>] = [:]
+
+    // Public getter for settingsService
+    var getSettingsService: CBService? {
+        return settingsService
+    }
 
     enum ConnectionStatus {
         case disconnected
@@ -106,8 +113,21 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
 
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
         print("🔵 BLEManager: Discovered peripheral: \(peripheral.name ?? "Unknown") with RSSI: \(RSSI.intValue)")
-        let iron = Iron(uuid: peripheral.identifier, rssi: RSSI.intValue, name: peripheral.name, peripheral: peripheral)
-        if !irons.contains(where: { $0.id == iron.id }) {
+        
+        // Check if we already have this device in our list
+        if let existingIron = irons.first(where: { $0.id == peripheral.identifier }) {
+            // Update the existing iron's properties
+            existingIron.rssi = RSSI.intValue
+            existingIron.peripheral = peripheral
+            if let name = peripheral.name {
+                existingIron.name = name
+            }
+            // Ensure we preserve the variation
+            let variation = existingIron.variation
+            existingIron.variation = variation
+        } else {
+            // Create a new iron instance
+            let iron = Iron(uuid: peripheral.identifier, rssi: RSSI.intValue, name: peripheral.name, peripheral: peripheral)
             DispatchQueue.main.async {
                 self.irons.append(iron)
             }
@@ -251,12 +271,25 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
         if let error = error {
             print("🔵 BLEManager: Error receiving value for characteristic \(characteristic.uuid.uuidString): \(error.localizedDescription)")
+            if let continuation = pendingReadContinuations[characteristic] {
+                continuation.resume(throwing: error)
+                pendingReadContinuations.removeValue(forKey: characteristic)
+            }
             return
         }
         
         guard let data = characteristic.value else {
             print("🔵 BLEManager: No data received for characteristic: \(characteristic.uuid.uuidString)")
+            if let continuation = pendingReadContinuations[characteristic] {
+                continuation.resume(throwing: BLEError.readFailed)
+                pendingReadContinuations.removeValue(forKey: characteristic)
+            }
             return
+        }
+        
+        if let continuation = pendingReadContinuations[characteristic] {
+            continuation.resume(returning: data)
+            pendingReadContinuations.removeValue(forKey: characteristic)
         }
         
         switch characteristic.uuid {
@@ -266,6 +299,22 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
             handleBuildData(data)
         default:
             print("🔵 BLEManager: Received value for characteristic: \(characteristic.uuid.uuidString)")
+        }
+    }
+    
+    func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
+        if let error = error {
+            print("🔵 BLEManager: Error writing value for characteristic \(characteristic.uuid.uuidString): \(error.localizedDescription)")
+            if let continuation = pendingWriteContinuations[characteristic] {
+                continuation.resume(throwing: error)
+                pendingWriteContinuations.removeValue(forKey: characteristic)
+            }
+            return
+        }
+        
+        if let continuation = pendingWriteContinuations[characteristic] {
+            continuation.resume()
+            pendingWriteContinuations.removeValue(forKey: characteristic)
         }
     }
     
@@ -320,6 +369,30 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
             DispatchQueue.main.async {
                 self.connectedIron?.build = buildString
             }
+        }
+    }
+
+    // MARK: - Helper Methods
+    
+    func readValue(for characteristic: CBCharacteristic) async throws -> Data {
+        guard let peripheral = connectedIron?.peripheral else {
+            throw BLEError.notConnected
+        }
+        
+        return try await withCheckedThrowingContinuation { continuation in
+            pendingReadContinuations[characteristic] = continuation
+            peripheral.readValue(for: characteristic)
+        }
+    }
+    
+    func writeValue(_ data: Data, for characteristic: CBCharacteristic, type: CBCharacteristicWriteType) async throws {
+        guard let peripheral = connectedIron?.peripheral else {
+            throw BLEError.notConnected
+        }
+        
+        return try await withCheckedThrowingContinuation { continuation in
+            pendingWriteContinuations[characteristic] = continuation
+            peripheral.writeValue(data, for: characteristic, type: type)
         }
     }
 }

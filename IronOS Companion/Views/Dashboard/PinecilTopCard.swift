@@ -10,6 +10,11 @@ import SwiftUI
 struct PinecilTopCard: View {
     let iron: Iron?
     let data: IronData?
+    @ObservedObject var settingsViewModel: SettingsViewModel
+    @State private var isPlusLongPressing = false
+    @State private var isMinusLongPressing = false
+    private let hapticFeedback = UIImpactFeedbackGenerator(style: .medium)
+    private let longPressHaptic = UIImpactFeedbackGenerator(style: .heavy)
 
     var body: some View {
         GeometryReader { geometry in
@@ -29,29 +34,90 @@ struct PinecilTopCard: View {
                             Text("Setpoint")
                                 .font(.headline)
                             HStack(spacing: 20) {
-                                Text(String(data?.setpoint ?? 0))
+                                Text(String(settingsViewModel.settings?.solderingSettings.solderingTemp ?? data?.setpoint ?? 0))
                                     .font(.largeTitle)
                                     .fontWeight(.bold)
+                                    .frame(width: 70, alignment: .leading)
+                                    .monospacedDigit()
                                 HStack(spacing: 12) {
-                                    Circle()
-                                        .stroke(Color.primary, lineWidth: 2)
-                                        .overlay(
-                                            Image(systemName: "plus")
-                                                .font(.title3)
-                                        )
-                                    Circle()
-                                        .stroke(Color.primary, lineWidth: 2)
-                                        .overlay(
-                                            Image(systemName: "minus")
-                                                .font(.title3)
-                                        )
+                                    Button(action: {
+                                        if !isPlusLongPressing,
+                                           let currentTemp = settingsViewModel.settings?.solderingSettings.solderingTemp ?? data?.setpoint {
+                                            let stepSize = settingsViewModel.settings?.solderingSettings.tempChangeShortPress ?? 10
+                                            hapticFeedback.impactOccurred()
+                                            print("🔵 Short press plus: \(currentTemp + stepSize) - \(stepSize)")
+                                            settingsViewModel.setSolderingTemp(currentTemp + stepSize)
+                                        }
+                                    }) {
+                                        Circle()
+                                            .stroke(Color.primary, lineWidth: 2)
+                                            .overlay(
+                                                Image(systemName: "plus")
+                                                    .font(.title3)
+                                            )
+                                    }
+                                    .buttonStyle(.plain)
+                                    .simultaneousGesture(
+                                        LongPressGesture(minimumDuration: 0.5)
+                                            .onEnded { _ in
+                                                isPlusLongPressing = true
+                                                longPressHaptic.impactOccurred()
+                                                if let currentTemp = settingsViewModel.settings?.solderingSettings.solderingTemp ?? data?.setpoint {
+                                                    let stepSize = settingsViewModel.settings?.solderingSettings.tempChangeLongPress ?? 50
+                                                    print("🔵 Long press plus: \(currentTemp + stepSize) - \(stepSize)")
+                                                    settingsViewModel.setSolderingTemp(currentTemp + stepSize)
+                                                }
+                                            }
+                                    )
+                                    .simultaneousGesture(
+                                        DragGesture(minimumDistance: 0)
+                                            .onEnded { _ in
+                                                isPlusLongPressing = false
+                                            }
+                                    )
+                                    
+                                    Button(action: {
+                                        if !isMinusLongPressing,
+                                           let currentTemp = settingsViewModel.settings?.solderingSettings.solderingTemp ?? data?.setpoint {
+                                            let stepSize = settingsViewModel.settings?.solderingSettings.tempChangeShortPress ?? 10
+                                            hapticFeedback.impactOccurred()
+                                            print("🔵 Short press minus: \(currentTemp - stepSize) - \(stepSize)")
+                                            settingsViewModel.setSolderingTemp(currentTemp - stepSize)
+                                        }
+                                    }) {
+                                        Circle()
+                                            .stroke(Color.primary, lineWidth: 2)
+                                            .overlay(
+                                                Image(systemName: "minus")
+                                                    .font(.title3)
+                                            )
+                                    }
+                                    .buttonStyle(.plain)
+                                    .simultaneousGesture(
+                                        LongPressGesture(minimumDuration: 0.5)
+                                            .onEnded { _ in
+                                                isMinusLongPressing = true
+                                                longPressHaptic.impactOccurred()
+                                                if let currentTemp = settingsViewModel.settings?.solderingSettings.solderingTemp ?? data?.setpoint {
+                                                    let stepSize = settingsViewModel.settings?.solderingSettings.tempChangeLongPress ?? 50
+                                                    print("🔵 Long press minus: \(currentTemp - stepSize) - \(stepSize)")
+                                                    settingsViewModel.setSolderingTemp(currentTemp - stepSize)
+                                                }
+                                            }
+                                    )
+                                    .simultaneousGesture(
+                                        DragGesture(minimumDistance: 0)
+                                            .onEnded { _ in
+                                                isMinusLongPressing = false
+                                            }
+                                    )
                                 }
                             }
                         }
                     }
                     Spacer()
                     ZStack(alignment: .bottomTrailing) {
-                        (iron?.image ?? Image("default"))
+                        (iron?.cutImage ?? Image("pinecil.cut.default"))
                             .resizable()
                             .scaledToFit()
                             .scaleEffect(1.6)
@@ -94,7 +160,8 @@ struct PinecilTopCard: View {
 #Preview {
     PinecilTopCard(
         iron: Iron(uuid: UUID(), name: "Test Device", build: "2.23", devSN: "123", devID: "2.23"),
-        data: IronData(from: [30, 80, 198, 307, 0, 3, 62, 618684, 600167, 441, 619, 0, 0, 0])
+        data: IronData(from: [30, 80, 198, 307, 0, 3, 62, 618684, 600167, 441, 619, 0, 0, 0]),
+        settingsViewModel: SettingsViewModel()
     )
     .frame(height: 160)
     .padding()

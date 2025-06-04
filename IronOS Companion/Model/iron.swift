@@ -45,7 +45,7 @@ class Iron {
     var build: String?
     var devSN: String?
     var devID: String?
-    var variation: IronColor = IronColor.teal
+    @Attribute var variation: IronColor
     @Transient var connectedAt: Date?
     @Transient var connected: Bool = false
     @Transient var rssi: Int = 0
@@ -57,6 +57,7 @@ class Iron {
         self.build = build
         self.devSN = devSN
         self.devID = devID
+        self.variation = .teal
     }
 
     // Init for device discovery
@@ -65,6 +66,7 @@ class Iron {
         self.rssi = rssi
         self.name = name
         self.peripheral = peripheral
+        self.variation = .teal
     }
 
     var signalQuality: SignalQuality {
@@ -90,19 +92,38 @@ class Iron {
     var image: Image {
         switch variation {
         case .teal:
-            return Image("default")
+            return Image("pinecil.default")
         case .red:
-            return Image("red")
+            return Image("pinecil.red")
         case .blue:
-            return Image("blue")
+            return Image("pinecil.blue")
         case .liquid:
-            return Image("liquid")
+            return Image("pinecil.liquid")
         case .pink:
-            return Image("pink")
+            return Image("pinecil.pink")
         case .pride:
-            return Image("pride")
+            return Image("pinecil.pride")
         case .transparent:
-            return Image("transparent")
+            return Image("pinecil.transparent")
+        }
+    }
+
+    var cutImage: Image {
+        switch variation {
+        case .teal:
+            return Image("pinecil.cut.default")
+        case .red:
+            return Image("pinecil.cut.red")
+        case .blue:
+            return Image("pinecil.cut.blue")
+        case .liquid:
+            return Image("pinecil.cut.liquid")
+        case .pink:
+            return Image("pinecil.cut.pink")
+        case .pride:
+            return Image("pinecil.cut.pride")
+        case .transparent:
+            return Image("pinecil.cut.transparent")
         }
     }
 }
