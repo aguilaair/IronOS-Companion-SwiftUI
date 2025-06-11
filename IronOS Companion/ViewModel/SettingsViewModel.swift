@@ -1,329 +1,247 @@
+//
+//  SettingsViewModel.swift
+//  IronOS Companion
+//
+//  Created by Eduardo Moreno Adanez on 6/11/25.
+//
+// Claude Sonnet 3.7 added the repetitive code to get the settings from the characteristic, with the following prompt:
+// "Give me a function that gets the settings from the characteristic based on the uuids: [...]"
+
 import Foundation
 import SwiftUI
+import Combine
+import CoreBluetooth
 
 @MainActor
 class SettingsViewModel: ObservableObject {
     @Published var settings: IronSettings?
-    @Published var isRetrieving: Bool = false
+    @Published var isRetrieving = false
+    @Published var isSaving = false
     @Published var error: Error?
     
+    private var cancellables = Set<AnyCancellable>()
+    private let bleManager = BLEManager.shared
     private let settingsManager: IronSettingsManager
-    private var debounceTimer: Timer?
-    private let debounceInterval: TimeInterval = 0.5 // 500ms debounce
     
     init(settingsManager: IronSettingsManager = IronSettingsManager()) {
         self.settingsManager = settingsManager
+        
+        // Subscribe to BLE manager's connected iron changes
+        bleManager.$connectedIron
+            .sink { [weak self] iron in
+                if iron != nil {
+                    Task {
+                        await self?.getSettings()
+                    }
+                } else {
+                    self?.settings = nil
+                }
+            }
+            .store(in: &cancellables)
+        
+        // Subscribe to settings manager's settings changes
+        settingsManager.$settings
+            .sink { [weak self] settings in
+                self?.settings = settings
+            }
+            .store(in: &cancellables)
+        
+        settingsManager.$isRetrieving
+            .sink { [weak self] isRetrieving in
+                self?.isRetrieving = isRetrieving
+            }
+            .store(in: &cancellables)
     }
     
-    func loadSettings() async {
+    func getSettings() async {
         do {
-            isRetrieving = true
-            error = nil
             try await settingsManager.getSettings()
-            settings = settingsManager.settings
         } catch {
             self.error = error
         }
-        isRetrieving = false
     }
     
-    // MARK: - Power Settings
-    
-    func setPowerSource(_ source: PowerSource) async {
+    func saveToFlash() async {
         do {
-            try await settingsManager.updateSetting(source, for: IronCharacteristicUUIDs.dCInCutoff)
-            await loadSettings()
+            isSaving = true
+            try await settingsManager.saveToFlash()
+            isSaving = false
         } catch {
             self.error = error
+            isSaving = false
         }
     }
     
-    func setMinVolCell(_ value: Double) async {
-        do {
-            try await settingsManager.updateSetting(value, for: IronCharacteristicUUIDs.minVolCell)
-            await loadSettings()
-        } catch {
-            self.error = error
-        }
-    }
+    // MARK: - Settings Setters
     
-    func setQCMaxVoltage(_ value: Double) async {
-        do {
-            try await settingsManager.updateSetting(value, for: IronCharacteristicUUIDs.qCMaxVoltage)
-            await loadSettings()
-        } catch {
-            self.error = error
-        }
-    }
-    
-    func setPdTimeout(_ value: TimeInterval) async {
-        do {
-            try await settingsManager.updateSetting(value, for: IronCharacteristicUUIDs.pdNegTimeout)
-            await loadSettings()
-        } catch {
-            self.error = error
-        }
-    }
-    
-    // MARK: - Soldering Settings
-    
-    func setSolderingTemp(_ value: Int) {
-        // Update local settings immediately
-        if var currentSettings = settings {
-            currentSettings.solderingSettings.solderingTemp = value
-            settings = currentSettings
-        }
+    private func updateSetting<T>(_ value: T, for characteristic: CBUUID, updateLocal: (inout IronSettings) -> Void) {
+        guard var currentSettings = settings else { return }
+        updateLocal(&currentSettings)
+        self.settings = currentSettings
         
-        // Cancel any existing timer
-        debounceTimer?.invalidate()
+        // Store the current settings for potential revert
+        let originalSettings = currentSettings
         
-        // Create a new timer
-        debounceTimer = Timer.scheduledTimer(withTimeInterval: debounceInterval, repeats: false) { [weak self] _ in
-            // Apply to device asynchronously after debounce
-            Task {
-                do {
-                    try await self?.settingsManager.updateSetting(value, for: IronCharacteristicUUIDs.setTemperature)
-                    await self?.loadSettings()
-                } catch {
-                    self?.error = error
+        Task {
+            do {
+                try await settingsManager.updateSetting(value, for: characteristic)
+            } catch {
+                print("Error updating setting: \(error.localizedDescription)")
+                // Revert the local change if the write failed
+                await MainActor.run {
+                    self.settings = originalSettings
                 }
             }
         }
     }
     
-    func setBoostTemp(_ value: Int) async {
-        do {
-            try await settingsManager.updateSetting(value, for: IronCharacteristicUUIDs.boostTemperature)
-            await loadSettings()
-        } catch {
-            self.error = error
+    func setSolderingTemp(_ temp: Int) {
+        updateSetting(temp, for: IronCharacteristicUUIDs.setTemperature) { settings in
+            settings.solderingSettings.solderingTemp = temp
         }
     }
     
-    func setStartupBehavior(_ behavior: StartupBehavior) async {
-        do {
-            try await settingsManager.updateSetting(behavior, for: IronCharacteristicUUIDs.autoStart)
-            await loadSettings()
-        } catch {
-            self.error = error
+    func setBoostTemp(_ temp: Int) {
+        updateSetting(temp, for: IronCharacteristicUUIDs.boostTemperature) { settings in
+            settings.solderingSettings.boostTemp = temp
         }
     }
     
-    func setTempChangeShort(_ value: Int) async {
-        do {
-            try await settingsManager.updateSetting(value, for: IronCharacteristicUUIDs.tempChangeShortStep)
-            await loadSettings()
-        } catch {
-            self.error = error
+    func setTempChangeShortPress(_ value: Int) {
+        updateSetting(value, for: IronCharacteristicUUIDs.tempChangeShortStep) { settings in
+            settings.solderingSettings.tempChangeShortPress = value
         }
     }
     
-    func setTempChangeLong(_ value: Int) async {
-        do {
-            try await settingsManager.updateSetting(value, for: IronCharacteristicUUIDs.tempChangeLongStep)
-            await loadSettings()
-        } catch {
-            self.error = error
+    func setTempChangeLongPress(_ value: Int) {
+        updateSetting(value, for: IronCharacteristicUUIDs.tempChangeLongStep) { settings in
+            settings.solderingSettings.tempChangeLongPress = value
         }
     }
     
-    func setLockButtons(_ behavior: LockingBehavior) async {
-        do {
-            try await settingsManager.updateSetting(behavior, for: IronCharacteristicUUIDs.lockingMode)
-            await loadSettings()
-        } catch {
-            self.error = error
+    func setStartupBehavior(_ behavior: StartupBehavior) {
+        updateSetting(behavior, for: IronCharacteristicUUIDs.autoStart) { settings in
+            settings.solderingSettings.startUpBehavior = behavior
         }
     }
     
-    // MARK: - UI Settings
-    
-    func setTempUnit(_ unit: TempUnit) async {
-        do {
-            try await settingsManager.updateSetting(unit, for: IronCharacteristicUUIDs.temperatureUnit)
-            await loadSettings()
-        } catch {
-            self.error = error
+    func setLockingBehavior(_ behavior: LockingBehavior) {
+        updateSetting(behavior, for: IronCharacteristicUUIDs.lockingMode) { settings in
+            settings.solderingSettings.allowLockingButtons = behavior
         }
     }
     
-    func setDisplayOrientation(_ orientation: DisplayOrientation) async {
-        do {
-            try await settingsManager.updateSetting(orientation, for: IronCharacteristicUUIDs.displayRotation)
-            await loadSettings()
-        } catch {
-            self.error = error
+    func setSleepTemp(_ temp: Int) {
+        updateSetting(temp, for: IronCharacteristicUUIDs.sleepTemperature) { settings in
+            settings.sleepSettings.sleepTemp = temp
         }
     }
     
-    func setCooldownFlashing(_ value: Bool) async {
-        do {
-            try await settingsManager.updateSetting(value, for: IronCharacteristicUUIDs.cooldownBlink)
-            await loadSettings()
-        } catch {
-            self.error = error
+    func setSleepTimeout(_ timeout: Int) {
+        updateSetting(timeout, for: IronCharacteristicUUIDs.sleepTimeout) { settings in
+            settings.sleepSettings.sleepTimeout = timeout
         }
     }
     
-    func setScrollingSpeed(_ speed: ScrollingSpeed) async {
-        do {
-            try await settingsManager.updateSetting(speed, for: IronCharacteristicUUIDs.scrollingSpeed)
-            await loadSettings()
-        } catch {
-            self.error = error
+    func setMotionSensitivity(_ sensitivity: Int) {
+        updateSetting(sensitivity, for: IronCharacteristicUUIDs.motionSensitivity) { settings in
+            settings.sleepSettings.motionSensitivity = sensitivity
         }
     }
     
-    func setSwapButtons(_ value: Bool) async {
-        do {
-            try await settingsManager.updateSetting(value, for: IronCharacteristicUUIDs.reverseButtonTempChange)
-            await loadSettings()
-        } catch {
-            self.error = error
+    func setShutdownTimeout(_ timeout: TimeInterval) {
+        updateSetting(Int(timeout / 60), for: IronCharacteristicUUIDs.shutdownTimeout) { settings in
+            settings.sleepSettings.shutdownTimeout = timeout
         }
     }
     
-    func setAnimationSpeed(_ speed: AnimationSpeed) async {
-        do {
-            try await settingsManager.updateSetting(speed, for: IronCharacteristicUUIDs.animSpeed)
-            await loadSettings()
-        } catch {
-            self.error = error
+    func setPowerSource(_ source: PowerSource) {
+        updateSetting(source, for: IronCharacteristicUUIDs.dCInCutoff) { settings in
+            settings.powerSettings.dCInCutoff = source
         }
     }
     
-    func setScreenBrightness(_ value: Int) async {
-        do {
-            try await settingsManager.updateSetting(value, for: IronCharacteristicUUIDs.brightness)
-            await loadSettings()
-        } catch {
-            self.error = error
+    func setMinVolCell(_ voltage: Double) {
+        updateSetting(voltage, for: IronCharacteristicUUIDs.minVolCell) { settings in
+            settings.powerSettings.minVolCell = voltage
         }
     }
     
-    func setInvertScreen(_ value: Bool) async {
-        do {
-            try await settingsManager.updateSetting(value, for: IronCharacteristicUUIDs.colourInversion)
-            await loadSettings()
-        } catch {
-            self.error = error
+    func setQCMaxVoltage(_ voltage: Double) {
+        updateSetting(voltage, for: IronCharacteristicUUIDs.qCMaxVoltage) { settings in
+            settings.powerSettings.qCMaxVoltage = voltage
         }
     }
     
-    func setBootLogoDuration(_ value: Int) async {
-        do {
-            try await settingsManager.updateSetting(value, for: IronCharacteristicUUIDs.logoTime)
-            await loadSettings()
-        } catch {
-            self.error = error
+    func setPDTimeout(_ timeout: TimeInterval) {
+        updateSetting(Int(timeout * 10), for: IronCharacteristicUUIDs.pdNegTimeout) { settings in
+            settings.powerSettings.pdTimeout = timeout
         }
     }
     
-    func setDetailedIdleScreen(_ value: Bool) async {
-        do {
-            try await settingsManager.updateSetting(value, for: IronCharacteristicUUIDs.advancedIdle)
-            await loadSettings()
-        } catch {
-            self.error = error
+    func setTempUnit(_ unit: TempUnit) {
+        updateSetting(unit, for: IronCharacteristicUUIDs.temperatureUnit) { settings in
+            settings.uiSettings.tempUnit = unit
         }
     }
     
-    func setDetailedSolderScreen(_ value: Bool) async {
-        do {
-            try await settingsManager.updateSetting(value, for: IronCharacteristicUUIDs.advancedSoldering)
-            await loadSettings()
-        } catch {
-            self.error = error
+    func setDisplayOrientation(_ orientation: DisplayOrientation) {
+        updateSetting(orientation, for: IronCharacteristicUUIDs.displayRotation) { settings in
+            settings.uiSettings.displayOrientation = orientation
         }
     }
     
-    // MARK: - Advanced Settings
-    
-    func setPowerLimit(_ value: Int) async {
-        do {
-            try await settingsManager.updateSetting(value, for: IronCharacteristicUUIDs.powerLimit)
-            await loadSettings()
-        } catch {
-            self.error = error
+    func setInvertScreen(_ invert: Bool) {
+        updateSetting(invert, for: IronCharacteristicUUIDs.colourInversion) { settings in
+            settings.uiSettings.invertScreen = invert
         }
     }
     
-    func setPowerPulse(_ value: Double) async {
-        do {
-            try await settingsManager.updateSetting(value, for: IronCharacteristicUUIDs.powerPulsePower)
-            await loadSettings()
-        } catch {
-            self.error = error
+    func setAnimationSpeed(_ speed: AnimationSpeed) {
+        updateSetting(speed, for: IronCharacteristicUUIDs.animSpeed) { settings in
+            settings.uiSettings.animationSpeed = speed
         }
     }
     
-    func setPowerPulseDuration(_ value: TimeInterval) async {
-        do {
-            try await settingsManager.updateSetting(value, for: IronCharacteristicUUIDs.powerPulseDuration)
-            await loadSettings()
-        } catch {
-            self.error = error
+    func setScrollingSpeed(_ speed: ScrollingSpeed) {
+        updateSetting(speed, for: IronCharacteristicUUIDs.scrollingSpeed) { settings in
+            settings.uiSettings.scrollingSpeed = speed
         }
     }
     
-    func setPowerPulseDelay(_ value: TimeInterval) async {
-        do {
-            try await settingsManager.updateSetting(value, for: IronCharacteristicUUIDs.powerPulseWait)
-            await loadSettings()
-        } catch {
-            self.error = error
+    func setScreenBrightness(_ brightness: Int) {
+        updateSetting(brightness, for: IronCharacteristicUUIDs.brightness) { settings in
+            settings.uiSettings.screenBrightness = brightness
         }
     }
     
-    // MARK: - Sleep Settings
-    
-    func setSleepTemp(_ value: Int) async {
-        do {
-            try await settingsManager.updateSetting(value, for: IronCharacteristicUUIDs.sleepTemperature)
-            await loadSettings()
-        } catch {
-            self.error = error
+    func setCooldownFlashing(_ enabled: Bool) {
+        updateSetting(enabled, for: IronCharacteristicUUIDs.cooldownBlink) { settings in
+            settings.uiSettings.cooldownFlashing = enabled
         }
     }
     
-    func setSleepTimeout(_ value: Int) async {
-        do {
-            try await settingsManager.updateSetting(value, for: IronCharacteristicUUIDs.sleepTimeout)
-            await loadSettings()
-        } catch {
-            self.error = error
+    func setSwapPlusMinusKeys(_ swap: Bool) {
+        updateSetting(swap, for: IronCharacteristicUUIDs.reverseButtonTempChange) { settings in
+            settings.uiSettings.swapPlusMinusKeys = swap
         }
     }
     
-    func setShutdownTimeout(_ value: TimeInterval) async {
-        do {
-            try await settingsManager.updateSetting(value, for: IronCharacteristicUUIDs.shutdownTimeout)
-            await loadSettings()
-        } catch {
-            self.error = error
+    func setBootLogoDuration(_ duration: TimeInterval) {
+        updateSetting(Int(duration), for: IronCharacteristicUUIDs.logoTime) { settings in
+            settings.uiSettings.bootLogoDuration = duration
         }
     }
     
-    func setMotionSensitivity(_ value: Int) async {
-        do {
-            try await settingsManager.updateSetting(value, for: IronCharacteristicUUIDs.motionSensitivity)
-            await loadSettings()
-        } catch {
-            self.error = error
+    func setDetailedIdleScreen(_ detailed: Bool) {
+        updateSetting(detailed, for: IronCharacteristicUUIDs.advancedIdle) { settings in
+            settings.uiSettings.detailedIdleScreen = detailed
         }
     }
     
-    // MARK: - Save Settings
-    
-    func saveToFlash() async {
-        do {
-            try await settingsManager.saveToFlash()
-        } catch {
-            self.error = error
+    func setDetailedSolderingScreen(_ detailed: Bool) {
+        updateSetting(detailed, for: IronCharacteristicUUIDs.advancedSoldering) { settings in
+            settings.uiSettings.detailedSolderingScreen = detailed
         }
-    }
-    
-    deinit {
-        debounceTimer?.invalidate()
     }
 } 

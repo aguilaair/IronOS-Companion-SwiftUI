@@ -1,3 +1,12 @@
+//
+//  IronSettingsManager.swift
+//  IronOS Companion
+//
+//  Created by Eduardo Moreno Adanez on 6/11/25.
+//
+// Claude Sonnet 3.7 added the repetitive code to get the settings from the characteristic, with the following prompt:
+// "Give me a function that gets the settings from the characteristic based on the uuids: [...]"
+
 import Foundation
 import CoreBluetooth
 import SwiftUI

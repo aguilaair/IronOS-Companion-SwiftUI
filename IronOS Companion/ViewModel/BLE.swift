@@ -7,11 +7,15 @@
 // Based on: https://youtu.be/dKUgxZC1y6Q, heavily modified to support BLE data streaming
 // Claude Sonnet 3.7 added logging, with the following prompt:
 // "Add print statements to all of the functions in the BLEManager class"
+// Claude Sonnet 3.7 added SwiftData to the class, with the following prompt:
+// "Give me access to the modelContext in this class"
 
 import Foundation
 import Foundation
 import SwiftUI
 import CoreBluetooth // Import CoreBluetooth framework for Bluetooth functionalities
+import SwiftData
+import ActivityKit
 
 
 class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeripheralDelegate {
@@ -35,10 +39,13 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
     private var dataUpdateTimer: Timer?
     private var pendingReadContinuations: [CBCharacteristic: CheckedContinuation<Data, Error>] = [:]
     private var pendingWriteContinuations: [CBCharacteristic: CheckedContinuation<Void, Error>] = [:]
-    @Query private var appState: [AppState]
+    var modelContext: ModelContext?
+    //private var liveActivity: Activity<IronActivityAttributes>?
     
     private var state: AppState? {
-        appState.first
+        guard let context = modelContext else { return nil }
+        let descriptor = FetchDescriptor<AppState>()
+        return try? context.fetch(descriptor).first
     }
 
     // Public getter for settingsService
@@ -185,6 +192,9 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
         connectedIron?.connected = true
         connectedIron?.connectedAt = Date()
         
+        // Start Live Activity
+        startLiveActivity()
+        
         // Discover services after connection
         print("🔵 BLEManager: Discovering services...")
         peripheral.discoverServices([
@@ -214,6 +224,9 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
                 self.connectedIron = nil
             }
         }
+        
+        // End Live Activity
+        endLiveActivity()
     }
     
     // MARK: - CBPeripheralDelegate
@@ -334,16 +347,16 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
     }
     
     private func startDataUpdates() {
-        // Stop any existing timer
         dataUpdateTimer?.invalidate()
-        
-        // Create a new timer that reads bulk data every second
         dataUpdateTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
             guard let self = self,
                   let peripheral = self.connectedIron?.peripheral,
                   let characteristic = self.bulkDataCharacteristic else { return }
             
             peripheral.readValue(for: characteristic)
+            
+            // Update Live Activity
+            self.updateLiveActivity()
         }
     }
     
@@ -405,10 +418,81 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
             throw BLEError.notConnected
         }
         
+        // Determine the appropriate write type based on characteristic properties
+        let writeType: CBCharacteristicWriteType
+        if characteristic.properties.contains(.writeWithoutResponse) {
+            writeType = .withoutResponse
+        } else if characteristic.properties.contains(.write) {
+            writeType = .withResponse
+        } else {
+            throw BLEError.writeFailed
+        }
+        
+        print("🔵 BLEManager: Writing value to characteristic \(characteristic.uuid.uuidString) with type \(writeType == .withResponse ? "withResponse" : "withoutResponse")")
+        
         return try await withCheckedThrowingContinuation { continuation in
             pendingWriteContinuations[characteristic] = continuation
-            peripheral.writeValue(data, for: characteristic, type: type)
+            peripheral.writeValue(data, for: characteristic, type: writeType)
+            
+            // For write without response, we need to resume immediately
+            if writeType == .withoutResponse {
+                continuation.resume()
+                pendingWriteContinuations.removeValue(forKey: characteristic)
+            }
         }
+    }
+
+    // MARK: - Live Activity Management
+    
+    private func startLiveActivity() {
+    /*guard let iron = connectedIron else { return }
+        
+        let attributes = IronActivityAttributes(
+            ironName: iron.name ?? "Iron",
+            ironColor: iron.variation
+        )
+        
+        let contentState = IronActivityAttributes.ContentState(
+            temperature: latestData?.currentTemp ?? 0,
+            setpoint: latestData?.setpoint ?? 0,
+            mode: latestData?.currentMode ?? .idle,
+            handleTemp: latestData?.handleTemp ?? 0,
+            power: latestData?.power ?? 0
+        )
+        
+        do {
+            liveActivity = try Activity.request(
+                attributes: attributes,
+                contentState: contentState,
+                pushType: nil
+            )
+        } catch {
+            print("🔵 BLEManager: Error starting Live Activity: \(error.localizedDescription)")
+        }*/
+    }
+    
+    private func updateLiveActivity() {
+        /*guard let activity = liveActivity,
+              let data = latestData else { return }
+        
+        let contentState = IronActivityAttributes.ContentState(
+            temperature: data.currentTemp,
+            setpoint: data.setpoint,
+            mode: data.currentMode,
+            handleTemp: data.handleTemp,
+            power: data.power
+        )
+        
+        Task {
+            await activity.update(using: contentState)
+        }*/
+    }
+    
+    private func endLiveActivity() {
+        /*Task {
+            await liveActivity?.end(using: nil, dismissalPolicy: .immediate)
+            liveActivity = nil
+        }*/
     }
 }
 

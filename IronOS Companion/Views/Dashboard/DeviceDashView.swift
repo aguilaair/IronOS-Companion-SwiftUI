@@ -38,6 +38,7 @@ struct DeviceDashView: View {
     @EnvironmentObject var bleManager: BLEManager
     @Query private var appState: [AppState]
     @State private var showDeviceList = false
+    @State private var showSettings = false
     @State private var currentColors: [Color] = [Color(.systemGray4), Color(.systemBackground)]
     @StateObject private var settingsViewModel = SettingsViewModel()
     
@@ -162,8 +163,22 @@ struct DeviceDashView: View {
                 }
             }
             .navigationTitle("Dashboard")
+            .toolbar {
+                if bleManager.connectedIron != nil {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button(action: {
+                            showSettings = true
+                        }) {
+                            Image(systemName: "gear")
+                        }
+                    }
+                }
+            }
             .navigationDestination(isPresented: $showDeviceList) {
                 DiscoveredDevicesView()
+            }
+            .sheet(isPresented: $showSettings) {
+                SettingsSheet()
             }
         }
     }

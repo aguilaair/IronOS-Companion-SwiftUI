@@ -37,6 +37,8 @@ struct IronOS_CompanionApp: App {
                     try context.save()
                 }
             }
+            // Set the ModelContext for BLEManager
+            BLEManager.shared.modelContext = context
             return container
         } catch {
             fatalError("Could not create ModelContainer: \(error)")

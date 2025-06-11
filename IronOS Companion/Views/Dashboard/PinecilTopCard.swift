@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import IronOSCompanionShared
 
 struct PinecilTopCard: View {
     let iron: Iron?
