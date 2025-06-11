@@ -1,3 +1,10 @@
+//
+//  states.swift
+//  IronOS Companion
+//
+//  Created by Eduardo Moreno Adanez on 5/26/25.
+//
+
 import SwiftUI
 import ActivityKit
 

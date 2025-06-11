@@ -6,15 +6,25 @@
 //
 // Claude Sonnet 3.7 added the repetitive code to show the settings in the sheet, with the following prompt:
 // "Let's implement the settings page. I want it to be a sheet. Please use standard iOS pickers to implmenet the UI"
+// Claude Sonnet 3.7 added MARKs and comments
+
 
 import SwiftUI
 
+/// A sheet view that displays and manages all device settings.
+/// This view is organized into tabs for different categories of settings:
+/// - Soldering settings
+/// - Sleep settings
+/// - Power settings
+/// - UI settings
 struct SettingsSheet: View {
+    // MARK: - Environment & State
     @Environment(\.dismiss) private var dismiss
     @StateObject private var settingsViewModel = SettingsViewModel()
     @State private var selectedTab = 0
     @State private var isSaving = false
     
+    // MARK: - Body
     var body: some View {
         NavigationView {
             VStack {
@@ -79,10 +89,13 @@ struct SettingsSheet: View {
     }
 }
 
+/// A view that displays and manages soldering-related settings.
 struct SolderingSettingsView: View {
+    // MARK: - Properties
     let settings: IronSettings
     let viewModel: SettingsViewModel
     
+    // MARK: - Body
     var body: some View {
         Form {
             Section("Temperature") {
@@ -151,10 +164,13 @@ struct SolderingSettingsView: View {
     }
 }
 
+/// A view that displays and manages sleep-related settings.
 struct SleepSettingsView: View {
+    // MARK: - Properties
     let settings: IronSettings
     let viewModel: SettingsViewModel
     
+    // MARK: - Body
     var body: some View {
         Form {
             Section("Sleep Temperature") {
@@ -204,10 +220,13 @@ struct SleepSettingsView: View {
     }
 }
 
+/// A view that displays and manages power-related settings.
 struct PowerSettingsView: View {
+    // MARK: - Properties
     let settings: IronSettings
     let viewModel: SettingsViewModel
     
+    // MARK: - Body
     var body: some View {
         Form {
             Section("Power Source") {
@@ -257,10 +276,13 @@ struct PowerSettingsView: View {
     }
 }
 
+/// A view that displays and manages UI-related settings.
 struct UISettingsView: View {
+    // MARK: - Properties
     let settings: IronSettings
     let viewModel: SettingsViewModel
     
+    // MARK: - Body
     var body: some View {
         Form {
             Section("Display") {

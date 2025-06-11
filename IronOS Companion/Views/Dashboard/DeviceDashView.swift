@@ -1,14 +1,24 @@
+//
+//  DeviceDashView.swift
+//  IronOS Companion
+//
+//  Created by Eduardo Moreno Adanez on 5/30/25.
+//// Claude Sonnet 3.7 added MARKs and comments
+
+
 import SwiftUI
 import SwiftData
 import Charts
 import IronOSCompanionShared
 
-
+/// A view component that displays temperature information in a card format.
 struct TemperatureDisplay: View {
+    // MARK: - Properties
     let temperature: Int
     let setpoint: Int
     let unit: String
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 8) {
             HStack(alignment: .firstTextBaseline, spacing: 4) {
@@ -36,7 +46,11 @@ struct TemperatureDisplay: View {
     }
 }
 
+/// The main dashboard view that displays all device information and controls.
+/// This view shows real-time data from the connected soldering iron and provides
+/// access to various settings and controls.
 struct DeviceDashView: View {
+    // MARK: - Environment & State
     @EnvironmentObject var bleManager: BLEManager
     @Query private var appState: [AppState]
     @State private var showDeviceList = false
@@ -44,6 +58,7 @@ struct DeviceDashView: View {
     @State private var currentColors: [Color] = [Color(.systemGray4), Color(.systemBackground)]
     @StateObject private var settingsViewModel = SettingsViewModel()
     
+    // MARK: - Computed Properties
     private var state: AppState? {
         appState.first
     }
@@ -55,6 +70,7 @@ struct DeviceDashView: View {
         return GradientConfig.forMode(data.currentMode)
     }
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             ZStack {

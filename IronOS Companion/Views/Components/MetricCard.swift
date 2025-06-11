@@ -1,12 +1,24 @@
+//
+//  MetricCard.swift
+//  IronOS Companion
+//
+//  Created by Eduardo Moreno Adanez on 6/1/25.
+// Claude Sonnet 3.7 added MARKs and comments
+
 import SwiftUI
 import Charts
 
+/// Represents a single data point in a chart.
 struct ChartDataPoint: Equatable {
     let index: Int
     let value: Double
 }
 
+/// A reusable card component that displays a metric value with an icon and an expandable chart.
+/// This component is used throughout the app to display various metrics like temperature,
+/// voltage, and power consumption.
 struct MetricCard: View {
+    // MARK: - Properties
     let value: Int
     let unit: String
     let icon: String
@@ -17,6 +29,7 @@ struct MetricCard: View {
     @EnvironmentObject private var bleManager: BLEManager
     @State private var isExpanded: Bool
     
+    // MARK: - Initialization
     init(
         value: Int,
         unit: String,
@@ -36,6 +49,7 @@ struct MetricCard: View {
         _isExpanded = State(initialValue: !contractedByDefault)
     }
     
+    // MARK: - Body
     var body: some View {
         ZStack {
             // Background color and faded unit

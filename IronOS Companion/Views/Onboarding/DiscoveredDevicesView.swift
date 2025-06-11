@@ -3,15 +3,18 @@
 //  IronOS Companion
 //
 //  Created by Eduardo Moreno Adanez on 5/28/25.
-//
+// Claude Sonnet 3.7 added MARKs and comments
+
 
 import SwiftUI
 import CoreBluetooth
 import SwiftData
 import IronOSCompanionShared
 
-
+/// A view that displays discovered Bluetooth devices and allows users to connect to them.
+/// This view shows a list of available soldering irons and their connection status.
 struct DiscoveredDevicesView: View {
+    // MARK: - Environment & State
     @EnvironmentObject var bleManager: BLEManager
     @Query private var appState: [AppState]
     @State private var showError = false
@@ -20,10 +23,12 @@ struct DiscoveredDevicesView: View {
     @State private var deviceToConnect: Iron? = nil // Track selected device
     @State private var navigateToHome = false // Add navigation state
     
+    // MARK: - Computed Properties
     private var state: AppState? {
         appState.first
     }
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 24) {
             Text("Discovered Devices")
@@ -97,12 +102,15 @@ struct DiscoveredDevicesView: View {
     }
 }
 
+/// A card component that displays information about a discovered device.
 struct DeviceCard: View {
+    // MARK: - Properties
     let iron: Iron
     let isSaved: Bool
     var onTap: (() -> Void)? = nil
     @State private var animateRadar = false
     
+    // MARK: - Body
     var body: some View {
         HStack(spacing: 18) {
             iron.image

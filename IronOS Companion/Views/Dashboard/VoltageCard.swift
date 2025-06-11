@@ -1,12 +1,23 @@
+//
+//  VoltageCard.swift
+//  IronOS Companion
+//
+//  Created by Eduardo Moreno Adanez on 6/1/25.
+//
 import SwiftUI
 import Charts
 
+/// A card component that displays voltage information for the connected device.
+/// This view shows the current voltage and whether the device is running on battery
+/// or power supply, with a historical chart of voltage readings.
 struct VoltageCard: View {
+    // MARK: - Properties
     let voltage: Double
     let isBattery: Bool
     let unit: String
     @EnvironmentObject private var bleManager: BLEManager
     
+    // MARK: - Body
     var body: some View {
         MetricCard(
             value: Int(voltage.rounded()),

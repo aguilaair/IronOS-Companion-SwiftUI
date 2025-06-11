@@ -4,19 +4,30 @@
 //
 //  Created by Eduardo Moreno Adanez on 5/31/25.
 //
+// Claude Sonnet 3.7 added MARKs and comments
+
 
 import SwiftUI
 import IronOSCompanionShared
 
+/// A card component that displays the main device information and controls.
+/// This view shows the device name, build version, and provides temperature
+/// adjustment controls with haptic feedback.
 struct PinecilTopCard: View {
+    // MARK: - Properties
     let iron: Iron?
     let data: IronData?
     @ObservedObject var settingsViewModel: SettingsViewModel
+    
+    // MARK: - State
     @State private var isPlusLongPressing = false
     @State private var isMinusLongPressing = false
+    
+    // MARK: - Haptic Feedback
     private let hapticFeedback = UIImpactFeedbackGenerator(style: .medium)
     private let longPressHaptic = UIImpactFeedbackGenerator(style: .heavy)
 
+    // MARK: - Body
     var body: some View {
         GeometryReader { geometry in
             let cardRadius: CGFloat = 18

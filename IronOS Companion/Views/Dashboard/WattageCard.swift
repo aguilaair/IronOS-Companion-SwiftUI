@@ -1,11 +1,23 @@
+//
+//  WattageCard.swift
+//  IronOS Companion
+//
+//  Created by Eduardo Moreno Adanez on 6/1/25.
+//
+// Claude Sonnet 3.7 added MARKs and comments
+
 import SwiftUI
 import Charts
 
+/// A card component that displays power consumption information for the connected device.
+/// This view shows the current wattage and provides a historical chart of power usage.
 struct WattageCard: View {
+    // MARK: - Properties
     let wattage: Int
     let unit: String
     @EnvironmentObject private var bleManager: BLEManager
     
+    // MARK: - Body
     var body: some View {
         MetricCard(
             value: wattage,

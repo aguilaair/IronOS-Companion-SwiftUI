@@ -4,6 +4,7 @@
 //
 //  Created by Eduardo Moreno Adanez on 6/11/25.
 //
+// Claude Sonnet 3.7 helped separate the logic into the shared project
 
 import ActivityKit
 import WidgetKit

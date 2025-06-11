@@ -4,13 +4,19 @@
 //
 //  Created by Eduardo Moreno Adanez on 5/28/25.
 //
+// Claude Sonnet 3.7 added MARKs and comments
 
 import SwiftUI
 
+/// A view that displays the welcome onboarding experience for new users.
+/// This view presents a series of pages introducing the app's features
+/// and guides users to the device discovery process.
 struct WelcomeView: View {
+    // MARK: - Properties
     @State private var currentPage = 0
     @State private var showDeviceList = false
     
+    // MARK: - Constants
     private let pages = [
         WelcomePage(
             title: "Welcome to IronOS Companion",
@@ -32,6 +38,7 @@ struct WelcomeView: View {
         )
     ]
     
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             ZStack {
@@ -79,11 +86,15 @@ struct WelcomeView: View {
     }
 }
 
+/// Represents the type of image to be displayed in a welcome page.
 enum WelcomePageImageType {
+    /// A system SF Symbol image
     case system(String)
+    /// An image from the asset catalog
     case asset(String)
 }
 
+/// Represents a single page in the welcome onboarding experience.
 struct WelcomePage {
     let title: String
     let description: String
@@ -91,9 +102,12 @@ struct WelcomePage {
     let backgroundColor: Color
 }
 
+/// A view that displays a single welcome page with its content.
 struct WelcomePageView: View {
+    // MARK: - Properties
     let page: WelcomePage
     
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 30) {
             Group {
