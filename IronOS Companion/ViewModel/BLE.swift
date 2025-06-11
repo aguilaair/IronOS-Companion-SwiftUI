@@ -16,7 +16,7 @@ import SwiftUI
 import CoreBluetooth // Import CoreBluetooth framework for Bluetooth functionalities
 import SwiftData
 import ActivityKit
-
+import IronOSCompanionShared
 
 class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     static let shared = BLEManager() // Add shared instance
@@ -40,7 +40,7 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
     private var pendingReadContinuations: [CBCharacteristic: CheckedContinuation<Data, Error>] = [:]
     private var pendingWriteContinuations: [CBCharacteristic: CheckedContinuation<Void, Error>] = [:]
     var modelContext: ModelContext?
-    //private var liveActivity: Activity<IronActivityAttributes>?
+    private var liveActivity: Activity<IronOSCompanionLiveActivityAttributes>?
     
     private var state: AppState? {
         guard let context = modelContext else { return nil }
@@ -445,14 +445,14 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
     // MARK: - Live Activity Management
     
     private func startLiveActivity() {
-    /*guard let iron = connectedIron else { return }
+        guard let iron = connectedIron else { return }
         
-        let attributes = IronActivityAttributes(
+        let attributes = IronOSCompanionLiveActivityAttributes(
             ironName: iron.name ?? "Iron",
             ironColor: iron.variation
         )
         
-        let contentState = IronActivityAttributes.ContentState(
+        let contentState = IronOSCompanionLiveActivityAttributes.ContentState(
             temperature: latestData?.currentTemp ?? 0,
             setpoint: latestData?.setpoint ?? 0,
             mode: latestData?.currentMode ?? .idle,
@@ -461,21 +461,21 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
         )
         
         do {
-            liveActivity = try Activity.request(
+            liveActivity = try Activity<IronOSCompanionLiveActivityAttributes>.request(
                 attributes: attributes,
-                contentState: contentState,
+                content: .init(state: contentState, staleDate: nil),
                 pushType: nil
             )
         } catch {
             print("🔵 BLEManager: Error starting Live Activity: \(error.localizedDescription)")
-        }*/
+        }
     }
     
     private func updateLiveActivity() {
-        /*guard let activity = liveActivity,
+        guard let activity = liveActivity,
               let data = latestData else { return }
         
-        let contentState = IronActivityAttributes.ContentState(
+        let contentState = IronOSCompanionLiveActivityAttributes.ContentState(
             temperature: data.currentTemp,
             setpoint: data.setpoint,
             mode: data.currentMode,
@@ -484,15 +484,15 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
         )
         
         Task {
-            await activity.update(using: contentState)
-        }*/
+            await activity.update(.init(state: contentState, staleDate: nil))
+        }
     }
     
     private func endLiveActivity() {
-        /*Task {
-            await liveActivity?.end(using: nil, dismissalPolicy: .immediate)
+        Task {
+            await liveActivity?.end(nil, dismissalPolicy: .immediate)
             liveActivity = nil
-        }*/
+        }
     }
 }
 

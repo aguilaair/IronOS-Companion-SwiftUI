@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import IronOSCompanionShared
 
 @Model
 class AppState {

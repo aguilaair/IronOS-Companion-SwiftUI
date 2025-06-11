@@ -8,6 +8,8 @@
 import SwiftUI
 import CoreBluetooth
 import SwiftData
+import IronOSCompanionShared
+
 
 struct DiscoveredDevicesView: View {
     @EnvironmentObject var bleManager: BLEManager

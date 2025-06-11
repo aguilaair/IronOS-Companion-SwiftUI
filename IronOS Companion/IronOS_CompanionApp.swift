@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 import CoreBluetooth
+import IronOSCompanionShared
 
 @main
 struct IronOS_CompanionApp: App {

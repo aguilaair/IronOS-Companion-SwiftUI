@@ -1,18 +1,12 @@
-//
-//  states.swift
-//  IronOS Companion
-//
-//  Created by Eduardo Moreno Adanez on 5/26/25.
-//
-
 import SwiftUI
+import ActivityKit
 
-struct GradientConfig {
-    let colors: [Color]
-    let isAnimating: Bool
-    let animationDuration: Double
+public struct GradientConfig {
+    public let colors: [Color]
+    public let isAnimating: Bool
+    public let animationDuration: Double
     
-    static func forMode(_ mode: OperatingMode) -> GradientConfig {
+    public static func forMode(_ mode: OperatingMode) -> GradientConfig {
         switch mode {
         case .idle:
             return GradientConfig(
@@ -53,7 +47,7 @@ struct GradientConfig {
         }
     }
     
-    static var disconnected: GradientConfig {
+    public static var disconnected: GradientConfig {
         GradientConfig(
             colors: [Color(.systemGray4), Color(.systemBackground)],
             isAnimating: false,
@@ -62,7 +56,7 @@ struct GradientConfig {
     }
 }
 
-enum OperatingMode: Int, Codable {
+public enum OperatingMode: Int, Codable {
     case idle
     case soldering
     case boost
@@ -70,7 +64,7 @@ enum OperatingMode: Int, Codable {
     case settings
     case debug
     
-    var displayText: String {
+    public var displayText: String {
         switch self {
         case .idle: return "Stand-by"
         case .soldering: return "Soldering"
@@ -81,7 +75,7 @@ enum OperatingMode: Int, Codable {
         }
     }
     
-    static func fromInt(_ value: Int) -> OperatingMode {
+    public static func fromInt(_ value: Int) -> OperatingMode {
         switch value {
         case 0: return .idle
         case 1: return .soldering
@@ -93,3 +87,29 @@ enum OperatingMode: Int, Codable {
         }
     }
 }
+
+public struct IronOSCompanionLiveActivityAttributes: ActivityAttributes {
+    public struct ContentState: Codable, Hashable {
+        public var temperature: Int
+        public var setpoint: Int
+        public var mode: OperatingMode
+        public var handleTemp: Double
+        public var power: Int
+        
+        public init(temperature: Int, setpoint: Int, mode: OperatingMode, handleTemp: Double, power: Int) {
+            self.temperature = temperature
+            self.setpoint = setpoint
+            self.mode = mode
+            self.handleTemp = handleTemp
+            self.power = power
+        }
+    }
+
+    public var ironName: String
+    public var ironColor: IronColor
+    
+    public init(ironName: String, ironColor: IronColor) {
+        self.ironName = ironName
+        self.ironColor = ironColor
+    }
+} 

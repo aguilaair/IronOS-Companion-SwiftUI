@@ -1,6 +1,8 @@
 import SwiftUI
 import SwiftData
 import Charts
+import IronOSCompanionShared
+
 
 struct TemperatureDisplay: View {
     let temperature: Int

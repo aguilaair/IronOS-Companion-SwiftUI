@@ -7,16 +7,37 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		ECADA0B82DF9F06A00779580 /* IronOSCompanionShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ECADA0B02DF9F06A00779580 /* IronOSCompanionShared.framework */; };
-		ECADA0B92DF9F06A00779580 /* IronOSCompanionShared.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = ECADA0B02DF9F06A00779580 /* IronOSCompanionShared.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		ECADA1002DF9F75000779580 /* IronOSCompanionShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ECADA0F82DF9F74F00779580 /* IronOSCompanionShared.framework */; };
+		ECADA1012DF9F75000779580 /* IronOSCompanionShared.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = ECADA0F82DF9F74F00779580 /* IronOSCompanionShared.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		ECADA1122DF9F93D00779580 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ECADA06F2DF9EC9300779580 /* WidgetKit.framework */; };
+		ECADA1132DF9F93D00779580 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ECADA0712DF9EC9300779580 /* SwiftUI.framework */; };
+		ECADA1242DF9F94900779580 /* IronOSCompanionLiveActivityExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = ECADA1112DF9F93D00779580 /* IronOSCompanionLiveActivityExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		ECADA1292DF9F95900779580 /* IronOSCompanionShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ECADA0F82DF9F74F00779580 /* IronOSCompanionShared.framework */; };
+		ECADA12A2DF9F95900779580 /* IronOSCompanionShared.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = ECADA0F82DF9F74F00779580 /* IronOSCompanionShared.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		ECADA1352DF9FF9C00779580 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ECADA1342DF9FF9C00779580 /* SwiftUI.framework */; };
+		ECADA1372DF9FFA100779580 /* ActivityKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ECADA1362DF9FFA100779580 /* ActivityKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		ECADA0B62DF9F06A00779580 /* PBXContainerItemProxy */ = {
+		ECADA0FE2DF9F75000779580 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = ECDCB8DA2DE57C02006DD91B /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = ECADA0AF2DF9F06A00779580;
+			remoteGlobalIDString = ECADA0F72DF9F74F00779580;
+			remoteInfo = IronOSCompanionShared;
+		};
+		ECADA1222DF9F94900779580 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = ECDCB8DA2DE57C02006DD91B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = ECADA1102DF9F93C00779580;
+			remoteInfo = IronOSCompanionLiveActivityExtension;
+		};
+		ECADA12B2DF9F95900779580 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = ECDCB8DA2DE57C02006DD91B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = ECADA0F72DF9F74F00779580;
 			remoteInfo = IronOSCompanionShared;
 		};
 /* End PBXContainerItemProxy section */
@@ -28,6 +49,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
+				ECADA1242DF9F94900779580 /* IronOSCompanionLiveActivityExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -38,7 +60,18 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				ECADA0B92DF9F06A00779580 /* IronOSCompanionShared.framework in Embed Frameworks */,
+				ECADA1012DF9F75000779580 /* IronOSCompanionShared.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		ECADA12D2DF9F95A00779580 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				ECADA12A2DF9F95900779580 /* IronOSCompanionShared.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -48,27 +81,56 @@
 /* Begin PBXFileReference section */
 		ECADA06F2DF9EC9300779580 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		ECADA0712DF9EC9300779580 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
-		ECADA0B02DF9F06A00779580 /* IronOSCompanionShared.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = IronOSCompanionShared.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		ECADA0F82DF9F74F00779580 /* IronOSCompanionShared.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = IronOSCompanionShared.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		ECADA1112DF9F93D00779580 /* IronOSCompanionLiveActivityExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = IronOSCompanionLiveActivityExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		ECADA1342DF9FF9C00779580 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/System/iOSSupport/System/Library/Frameworks/SwiftUI.framework; sourceTree = DEVELOPER_DIR; };
+		ECADA1362DF9FFA100779580 /* ActivityKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ActivityKit.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/System/iOSSupport/System/Library/Frameworks/ActivityKit.framework; sourceTree = DEVELOPER_DIR; };
 		ECDCB8E22DE57C02006DD91B /* IronOS Companion.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "IronOS Companion.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		ECADA0BA2DF9F06A00779580 /* Exceptions for "IronOSCompanionShared" folder in "IronOSCompanionShared" target */ = {
+		ECADA1022DF9F75000779580 /* Exceptions for "IronOSCompanionShared" folder in "IronOSCompanionShared" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				uuids.swift,
+			);
 			publicHeaders = (
 				IronOSCompanionShared.h,
 			);
-			target = ECADA0AF2DF9F06A00779580 /* IronOSCompanionShared */;
+			target = ECADA0F72DF9F74F00779580 /* IronOSCompanionShared */;
+		};
+		ECADA1062DF9F75700779580 /* Exceptions for "IronOSCompanionShared" folder in "IronOS Companion" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				uuids.swift,
+			);
+			target = ECDCB8E12DE57C02006DD91B /* IronOS Companion */;
+		};
+		ECADA1282DF9F94900779580 /* Exceptions for "IronOSCompanionLiveActivity" folder in "IronOSCompanionLiveActivityExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = ECADA1102DF9F93C00779580 /* IronOSCompanionLiveActivityExtension */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		ECADA0B12DF9F06A00779580 /* IronOSCompanionShared */ = {
+		ECADA0F92DF9F74F00779580 /* IronOSCompanionShared */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				ECADA0BA2DF9F06A00779580 /* Exceptions for "IronOSCompanionShared" folder in "IronOSCompanionShared" target */,
+				ECADA1062DF9F75700779580 /* Exceptions for "IronOSCompanionShared" folder in "IronOS Companion" target */,
+				ECADA1022DF9F75000779580 /* Exceptions for "IronOSCompanionShared" folder in "IronOSCompanionShared" target */,
 			);
 			path = IronOSCompanionShared;
+			sourceTree = "<group>";
+		};
+		ECADA1142DF9F93D00779580 /* IronOSCompanionLiveActivity */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				ECADA1282DF9F94900779580 /* Exceptions for "IronOSCompanionLiveActivity" folder in "IronOSCompanionLiveActivityExtension" target */,
+			);
+			path = IronOSCompanionLiveActivity;
 			sourceTree = "<group>";
 		};
 		ECDCB8E42DE57C02006DD91B /* IronOS Companion */ = {
@@ -79,10 +141,22 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		ECADA0AD2DF9F06A00779580 /* Frameworks */ = {
+		ECADA0F52DF9F74F00779580 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ECADA1372DF9FFA100779580 /* ActivityKit.framework in Frameworks */,
+				ECADA1352DF9FF9C00779580 /* SwiftUI.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		ECADA10E2DF9F93C00779580 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				ECADA1132DF9F93D00779580 /* SwiftUI.framework in Frameworks */,
+				ECADA1292DF9F95900779580 /* IronOSCompanionShared.framework in Frameworks */,
+				ECADA1122DF9F93D00779580 /* WidgetKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -90,7 +164,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				ECADA0B82DF9F06A00779580 /* IronOSCompanionShared.framework in Frameworks */,
+				ECADA1002DF9F75000779580 /* IronOSCompanionShared.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -100,6 +174,8 @@
 		ECADA06E2DF9EC9300779580 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				ECADA1362DF9FFA100779580 /* ActivityKit.framework */,
+				ECADA1342DF9FF9C00779580 /* SwiftUI.framework */,
 				ECADA06F2DF9EC9300779580 /* WidgetKit.framework */,
 				ECADA0712DF9EC9300779580 /* SwiftUI.framework */,
 			);
@@ -110,7 +186,8 @@
 			isa = PBXGroup;
 			children = (
 				ECDCB8E42DE57C02006DD91B /* IronOS Companion */,
-				ECADA0B12DF9F06A00779580 /* IronOSCompanionShared */,
+				ECADA0F92DF9F74F00779580 /* IronOSCompanionShared */,
+				ECADA1142DF9F93D00779580 /* IronOSCompanionLiveActivity */,
 				ECADA06E2DF9EC9300779580 /* Frameworks */,
 				ECDCB8E32DE57C02006DD91B /* Products */,
 			);
@@ -120,7 +197,8 @@
 			isa = PBXGroup;
 			children = (
 				ECDCB8E22DE57C02006DD91B /* IronOS Companion.app */,
-				ECADA0B02DF9F06A00779580 /* IronOSCompanionShared.framework */,
+				ECADA0F82DF9F74F00779580 /* IronOSCompanionShared.framework */,
+				ECADA1112DF9F93D00779580 /* IronOSCompanionLiveActivityExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -128,7 +206,7 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
-		ECADA0AB2DF9F06A00779580 /* Headers */ = {
+		ECADA0F32DF9F74F00779580 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -138,28 +216,52 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		ECADA0AF2DF9F06A00779580 /* IronOSCompanionShared */ = {
+		ECADA0F72DF9F74F00779580 /* IronOSCompanionShared */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = ECADA0BB2DF9F06A00779580 /* Build configuration list for PBXNativeTarget "IronOSCompanionShared" */;
+			buildConfigurationList = ECADA1032DF9F75000779580 /* Build configuration list for PBXNativeTarget "IronOSCompanionShared" */;
 			buildPhases = (
-				ECADA0AB2DF9F06A00779580 /* Headers */,
-				ECADA0AC2DF9F06A00779580 /* Sources */,
-				ECADA0AD2DF9F06A00779580 /* Frameworks */,
-				ECADA0AE2DF9F06A00779580 /* Resources */,
+				ECADA0F32DF9F74F00779580 /* Headers */,
+				ECADA0F42DF9F74F00779580 /* Sources */,
+				ECADA0F52DF9F74F00779580 /* Frameworks */,
+				ECADA0F62DF9F74F00779580 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				ECADA0B12DF9F06A00779580 /* IronOSCompanionShared */,
+				ECADA0F92DF9F74F00779580 /* IronOSCompanionShared */,
 			);
 			name = IronOSCompanionShared;
 			packageProductDependencies = (
 			);
 			productName = IronOSCompanionShared;
-			productReference = ECADA0B02DF9F06A00779580 /* IronOSCompanionShared.framework */;
+			productReference = ECADA0F82DF9F74F00779580 /* IronOSCompanionShared.framework */;
 			productType = "com.apple.product-type.framework";
+		};
+		ECADA1102DF9F93C00779580 /* IronOSCompanionLiveActivityExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = ECADA1252DF9F94900779580 /* Build configuration list for PBXNativeTarget "IronOSCompanionLiveActivityExtension" */;
+			buildPhases = (
+				ECADA10D2DF9F93C00779580 /* Sources */,
+				ECADA10E2DF9F93C00779580 /* Frameworks */,
+				ECADA10F2DF9F93C00779580 /* Resources */,
+				ECADA12D2DF9F95A00779580 /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				ECADA12C2DF9F95900779580 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				ECADA1142DF9F93D00779580 /* IronOSCompanionLiveActivity */,
+			);
+			name = IronOSCompanionLiveActivityExtension;
+			packageProductDependencies = (
+			);
+			productName = IronOSCompanionLiveActivityExtension;
+			productReference = ECADA1112DF9F93D00779580 /* IronOSCompanionLiveActivityExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 		ECDCB8E12DE57C02006DD91B /* IronOS Companion */ = {
 			isa = PBXNativeTarget;
@@ -174,7 +276,8 @@
 			buildRules = (
 			);
 			dependencies = (
-				ECADA0B72DF9F06A00779580 /* PBXTargetDependency */,
+				ECADA0FF2DF9F75000779580 /* PBXTargetDependency */,
+				ECADA1232DF9F94900779580 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				ECDCB8E42DE57C02006DD91B /* IronOS Companion */,
@@ -196,7 +299,10 @@
 				LastSwiftUpdateCheck = 1620;
 				LastUpgradeCheck = 1620;
 				TargetAttributes = {
-					ECADA0AF2DF9F06A00779580 = {
+					ECADA0F72DF9F74F00779580 = {
+						CreatedOnToolsVersion = 16.2;
+					};
+					ECADA1102DF9F93C00779580 = {
 						CreatedOnToolsVersion = 16.2;
 					};
 					ECDCB8E12DE57C02006DD91B = {
@@ -219,13 +325,21 @@
 			projectRoot = "";
 			targets = (
 				ECDCB8E12DE57C02006DD91B /* IronOS Companion */,
-				ECADA0AF2DF9F06A00779580 /* IronOSCompanionShared */,
+				ECADA0F72DF9F74F00779580 /* IronOSCompanionShared */,
+				ECADA1102DF9F93C00779580 /* IronOSCompanionLiveActivityExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		ECADA0AE2DF9F06A00779580 /* Resources */ = {
+		ECADA0F62DF9F74F00779580 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		ECADA10F2DF9F93C00779580 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -242,7 +356,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		ECADA0AC2DF9F06A00779580 /* Sources */ = {
+		ECADA0F42DF9F74F00779580 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		ECADA10D2DF9F93C00779580 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -259,15 +380,25 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		ECADA0B72DF9F06A00779580 /* PBXTargetDependency */ = {
+		ECADA0FF2DF9F75000779580 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = ECADA0AF2DF9F06A00779580 /* IronOSCompanionShared */;
-			targetProxy = ECADA0B62DF9F06A00779580 /* PBXContainerItemProxy */;
+			target = ECADA0F72DF9F74F00779580 /* IronOSCompanionShared */;
+			targetProxy = ECADA0FE2DF9F75000779580 /* PBXContainerItemProxy */;
+		};
+		ECADA1232DF9F94900779580 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = ECADA1102DF9F93C00779580 /* IronOSCompanionLiveActivityExtension */;
+			targetProxy = ECADA1222DF9F94900779580 /* PBXContainerItemProxy */;
+		};
+		ECADA12C2DF9F95900779580 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = ECADA0F72DF9F74F00779580 /* IronOSCompanionShared */;
+			targetProxy = ECADA12B2DF9F95900779580 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		ECADA0BC2DF9F06A00779580 /* Debug */ = {
+		ECADA1042DF9F75000779580 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
@@ -302,7 +433,7 @@
 			};
 			name = Debug;
 		};
-		ECADA0BD2DF9F06A00779580 /* Release */ = {
+		ECADA1052DF9F75000779580 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
@@ -334,6 +465,60 @@
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		ECADA1262DF9F94900779580 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 3X5JXMN7S9;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = IronOSCompanionLiveActivity/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = IronOSCompanionLiveActivity;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "dev.eduardom.IronOS-Companion.IronOSCompanionLiveActivity";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		ECADA1272DF9F94900779580 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 3X5JXMN7S9;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = IronOSCompanionLiveActivity/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = IronOSCompanionLiveActivity;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "dev.eduardom.IronOS-Companion.IronOSCompanionLiveActivity";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -525,11 +710,20 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		ECADA0BB2DF9F06A00779580 /* Build configuration list for PBXNativeTarget "IronOSCompanionShared" */ = {
+		ECADA1032DF9F75000779580 /* Build configuration list for PBXNativeTarget "IronOSCompanionShared" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				ECADA0BC2DF9F06A00779580 /* Debug */,
-				ECADA0BD2DF9F06A00779580 /* Release */,
+				ECADA1042DF9F75000779580 /* Debug */,
+				ECADA1052DF9F75000779580 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		ECADA1252DF9F94900779580 /* Build configuration list for PBXNativeTarget "IronOSCompanionLiveActivityExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				ECADA1262DF9F94900779580 /* Debug */,
+				ECADA1272DF9F94900779580 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

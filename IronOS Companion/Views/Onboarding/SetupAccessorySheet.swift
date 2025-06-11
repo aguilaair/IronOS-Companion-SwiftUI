@@ -8,6 +8,8 @@
 import SwiftUI
 import CoreBluetooth
 import SwiftData
+import IronOSCompanionShared
+
 
 struct SetUpAccessorySheet: View {
     // MARK: - Data owned by the parent view

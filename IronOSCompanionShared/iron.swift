@@ -1,21 +1,15 @@
-//
-//  iron.swift
-//  IronOS Companion
-//
-//  Created by Eduardo Moreno Adanez on 5/26/25.
-//
-
 import SwiftData
 import Foundation
 import SwiftUI
 import CoreBluetooth
+import ActivityKit
 
-enum SignalQuality: String {
+public enum SignalQuality: String {
     case excellent = "Excellent"
     case good = "Good"
     case poor = "Poor"
 
-    var color: Color {
+    public var color: Color {
         switch self {
         case .excellent:
             return .green
@@ -25,10 +19,10 @@ enum SignalQuality: String {
             return .red
         }
     }
-    var displayString: String { self.rawValue }
+    public var displayString: String { self.rawValue }
 }
 
-enum IronColor: String, Codable {
+public enum IronColor: String, Codable {
     case teal
     case red
     case blue
@@ -39,19 +33,19 @@ enum IronColor: String, Codable {
 }
 
 @Model
-class Iron {
-    @Attribute(.unique) var id: UUID
-    var name: String?
-    var build: String?
-    var devSN: String?
-    var devID: String?
-    @Attribute var variation: IronColor
-    @Transient var connectedAt: Date?
-    @Transient var connected: Bool = false
-    @Transient var rssi: Int = 0
-    @Transient var peripheral: CBPeripheral?
+public class Iron {
+    @Attribute(.unique) public var id: UUID
+    public var name: String?
+    public var build: String?
+    public var devSN: String?
+    public var devID: String?
+    @Attribute public var variation: IronColor
+    @Transient public var connectedAt: Date?
+    @Transient public var connected: Bool = false
+    @Transient public var rssi: Int = 0
+    @Transient public var peripheral: CBPeripheral?
     
-    init(uuid: UUID, name: String?, build: String?, devSN: String?, devID: String?) {
+    public init(uuid: UUID, name: String?, build: String?, devSN: String?, devID: String?) {
         self.id = uuid
         self.name = name
         self.build = build
@@ -61,7 +55,7 @@ class Iron {
     }
 
     // Init for device discovery
-    init(uuid: UUID, rssi: Int, name: String?, peripheral: CBPeripheral?) {
+    public init(uuid: UUID, rssi: Int, name: String?, peripheral: CBPeripheral?) {
         self.id = uuid
         self.rssi = rssi
         self.name = name
@@ -69,7 +63,7 @@ class Iron {
         self.variation = .teal
     }
 
-    var signalQuality: SignalQuality {
+    public var signalQuality: SignalQuality {
         switch rssi {
         case let rssi where rssi >= -60:
             return .excellent
@@ -80,16 +74,16 @@ class Iron {
         }
     }
 
-    var signalColor: Color {
+    public var signalColor: Color {
         signalQuality.color
     }
 
-    var signalQualityString: String {
+    public var signalQualityString: String {
         signalQuality.displayString
     }
     
     // Iron Image provider
-    var image: Image {
+    public var image: Image {
         switch variation {
         case .teal:
             return Image("pinecil.default")
@@ -108,7 +102,7 @@ class Iron {
         }
     }
 
-    var cutImage: Image {
+    public var cutImage: Image {
         switch variation {
         case .teal:
             return Image("pinecil.cut.default")
@@ -126,4 +120,4 @@ class Iron {
             return Image("pinecil.cut.transparent")
         }
     }
-}
+} 

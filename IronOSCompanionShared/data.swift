@@ -1,27 +1,22 @@
-//
-//  data.swift
-//  IronOS Companion
-//
-//  Created by Eduardo Moreno Adanez on 5/26/25.
-//
+import Foundation
 
-class IronData: Codable {
-    var currentTemp: Int
-    var setpoint: Int
-    var inputVoltage: Double
-    var handleTemp: Double
-    var power: Int
-    var powerSrc: Int
-    var tipResistance: Int
-    var uptime: Double
-    var lastMovementTime: Double
-    var maxTemp: Int
-    var rawTip: Int
-    var hallSensor: Int
-    var currentMode: OperatingMode
-    var estimatedWattage: Double
+public class IronData: Codable {
+    public var currentTemp: Int
+    public var setpoint: Int
+    public var inputVoltage: Double
+    public var handleTemp: Double
+    public var power: Int
+    public var powerSrc: Int
+    public var tipResistance: Int
+    public var uptime: Double
+    public var lastMovementTime: Double
+    public var maxTemp: Int
+    public var rawTip: Int
+    public var hallSensor: Int
+    public var currentMode: OperatingMode
+    public var estimatedWattage: Double
     
-    init(from chars: [Int]) {
+    public init(from chars: [Int]) {
         print("🔵 IronData: Processing values: \(chars)")
         
         // Ensure we have enough values
@@ -47,7 +42,7 @@ class IronData: Codable {
     }
 
     // This is for testing purposes
-    init(temperature: Int, setpoint: Int = 350, power: Int = 65, handleTemp: Double = 35.0) {
+    public init(temperature: Int, setpoint: Int = 350, power: Int = 65, handleTemp: Double = 35.0) {
         self.currentTemp = temperature
         self.setpoint = setpoint
         self.inputVoltage = 12.0
@@ -63,4 +58,4 @@ class IronData: Codable {
         self.currentMode = .soldering
         self.estimatedWattage = Double(power)
     }
-}
+} 
