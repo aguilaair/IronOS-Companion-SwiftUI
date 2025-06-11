@@ -169,7 +169,7 @@ struct SetUpAccessorySheet: View {
             ironName = iron.name ?? ""
         }
         .onChange(of: bleManager.connectionStatus) { oldValue, newValue in
-            
+            print("Connection status changed to \(newValue)")
         }
     }
 }

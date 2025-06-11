@@ -35,6 +35,11 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
     private var dataUpdateTimer: Timer?
     private var pendingReadContinuations: [CBCharacteristic: CheckedContinuation<Data, Error>] = [:]
     private var pendingWriteContinuations: [CBCharacteristic: CheckedContinuation<Void, Error>] = [:]
+    @Query private var appState: [AppState]
+    
+    private var state: AppState? {
+        appState.first
+    }
 
     // Public getter for settingsService
     var getSettingsService: CBService? {
@@ -126,19 +131,29 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
             let variation = existingIron.variation
             existingIron.variation = variation
         } else {
-            // Create a new iron instance
-            let iron = Iron(uuid: peripheral.identifier, rssi: RSSI.intValue, name: peripheral.name, peripheral: peripheral)
-            DispatchQueue.main.async {
-                self.irons.append(iron)
+            // Check if this iron exists in saved irons
+            if let savedIron = state?.savedIrons.first(where: { $0.id == peripheral.identifier }) {
+                // Update the saved iron with current discovery info
+                savedIron.rssi = RSSI.intValue
+                savedIron.peripheral = peripheral
+                DispatchQueue.main.async {
+                    self.irons.append(savedIron)
+                }
+            } else {
+                // Create a new iron instance if not found in saved irons
+                let iron = Iron(uuid: peripheral.identifier, rssi: RSSI.intValue, name: peripheral.name, peripheral: peripheral)
+                DispatchQueue.main.async {
+                    self.irons.append(iron)
+                }
             }
         }
     }
 
     // MARK: - Connection Management
     
-    func attemptConnectToLastIron(uuid: UUID) {
-        print("🔵 BLEManager: Attempting to connect to last iron with UUID: \(uuid)")
-        if let iron = irons.first(where: { $0.id == uuid }) {
+    func attemptConnectToLastIron(iron: Iron) {
+        print("🔵 BLEManager: Attempting to connect to last iron with UUID: \(iron.id)")
+        if let iron = irons.first(where: { $0.id == iron.id }) {
             connect(to: iron)
         } else {
             print("🔵 BLEManager: Last connected iron not found in discovered devices")

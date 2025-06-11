@@ -14,8 +14,8 @@ class AppState {
                 
                 // Wait for devices to be discovered before attempting to connect
                 DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-                    if bleManager.irons.contains(where: { $0.id == lastID }) {
-                        bleManager.attemptConnectToLastIron(uuid: lastID)
+                    if let iron = bleManager.irons.first(where: { $0.id == lastID }) {
+                        bleManager.attemptConnectToLastIron(iron: iron)
                     }
                 }
             }
